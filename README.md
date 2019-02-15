@@ -6,8 +6,11 @@ The webapp will evolve from time to time, actually it allows to make your own be
 # Use it
 
 On arm architectures:
+
     docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> beets-webapp-arm
+    
 On x86 architectures
+
     docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> beets-webapp-x86
 
 Where:
@@ -25,7 +28,8 @@ Where:
 
 ## Build image
 
-Run (packaging/build.sh) to build the image
+Run [packaging/build.sh](./packaging/build.sh) to build the image:
+
     ./packaging/build.sh --help
     age: ./packaging/build.sh [--localdeploy] [--distantdeploy] [--arm] [--x86]
 

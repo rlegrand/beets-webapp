@@ -1,5 +1,0 @@
-#!  /bin/bash
-
-ARGS=$@
-echo $ARGS
-docker-compose -f docker/docker-compose.exec.yml run --rm node npm $ARGS

@@ -4,13 +4,15 @@ services:
   # ng exec
   ng:
     image: "ngcli"
+    user: node
     build: ../docker/dev/ngcli/
     volumes:
       - ../front:/app/
   # node/npm executables
   node:
     image: node:8.11.3-jessie
-    user: "node"
-    working_dir: /home/node/app
+    user: node
+    working_dir: /home/node/app/back
     volumes:
-      - ../back/:/home/node/app      
+      - ../back/:/home/node/app/front
+      - ../front/:/home/node/app/back
