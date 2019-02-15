@@ -1,0 +1,33 @@
+
+<ul *ngIf="playlist?.length>0" class="player">
+	<li>
+		<em class="playerLabel">Playlist</em>
+
+		<ul class="playlist" >
+			<li 
+				*ngFor="let currentSong of playlist; let id = index" 
+				[ngClass]="{'song': true, 'selectedsong': isSelected(id)}" 
+				(click)="selectSong(id)" 
+			>
+				<ul class="songData">
+					<li class="songId">
+						{{id}}		
+					</li>
+					<li class="songTitle">{{currentSong.title}}</li>
+					<li class="songArtist">{{currentSong.artist}}</li>
+					<li class="songAlbum">{{currentSong.album}}</li>
+				</ul>
+			</li>
+		</ul>
+	</li>
+	<li>
+		<em class="playerLabel">Controls</em>
+		<ul>
+			<li>
+				<figure id="audioplayer">
+				    <audio #audioTag controls id="audiotrack" (ended)="nextSong($e)" ></audio>
+				</figure>
+			</li>
+		</ul>
+	</li>
+</ul>

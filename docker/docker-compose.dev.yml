@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  server:
+    volumes:
+      - ../back:/app/back
+      - ../front/dist:/app/front
+  ng:
+    build: ../docker/dev/ngcli/
+    volumes:
+      - ../front:/app/
+    command: build --watch      
+    

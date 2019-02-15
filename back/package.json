@@ -1,0 +1,14 @@
+{
+  "name": "beetswebapp",
+  "version": "1.0.0",
+  "author": {
+    "name": "Legrand Régis",
+    "email": "legrand.regis@gmail.com"
+  },
+  "dependencies": {
+    "tree-kill": "1.2.0",
+    "express": "3.0.1",
+    "body-parser": "1.18.3",
+    "js-yaml": "3.12.0"
+  }
+}

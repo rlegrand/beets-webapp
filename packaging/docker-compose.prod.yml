@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  server:
+    image: IMG_PATTERN
+    ports:
+      - 80:80
+    volumes:
+      # the beets yaml config
+      - /path/to/beetsconf:/app/beets/config/config.yaml
+      # the path to the beets library file
+      # - by default, it's on the same place than your config file and named library.db
+      # - otherwise you modified it in your conf, so retrieve it by running "grep library /your/beets/config.yml"
+      - /path/to/lib:/path/to/lib
+      # The path to the beets directory which contains your music
+      # - by default, it's $HOME/Music
+      # - otherwise you modified it in your conf, so retrieve it by running "grep directory /your/beets/config.yml"
+      - /path/to/directory:/path/to/directory
+    

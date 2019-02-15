@@ -1,0 +1,12 @@
+<button class="criteria" (click)="switchVisibility()">
+	{{label}}
+</button>
+<ul [ngClass]="{'hide':!isVisible(), 'criteriaContent':isVisible()}">
+	<li 
+		*ngFor="let currentElement of list; let id = index" 
+		[ngClass]="{'listElement': true}" 
+		(click)="selectEntry(id)"
+	>
+		{{currentElement}}
+	</li>
+</ul>

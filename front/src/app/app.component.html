@@ -1,0 +1,14 @@
+<header>
+  <h1>Beets webapp</h1>
+</header>
+
+<criteria-list (selectedElement)="selectAlbum($event)" [list]="albumsList" [label]="'albums'"></criteria-list>
+<criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByNameList" [label]="'albums artists (name)'"></criteria-list>
+<criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByDateList" [label]="'albums artists (added)'"></criteria-list>
+
+<form class="requestForm" (submit)="getSongs()" >
+  <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
+  <input type="submit">
+</form>
+
+<custom-player [playlist]="songsResponse.songs" ></custom-player>

@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  # ng exec
+  ng:
+    image: "ngcli"
+    build: ../docker/dev/ngcli/
+    volumes:
+      - ../front:/app/
+  # node/npm executables
+  node:
+    image: node:8.11.3-jessie
+    user: "node"
+    working_dir: /home/node/app
+    volumes:
+      - ../back/:/home/node/app      
