@@ -26,22 +26,33 @@ Where:
 
 # Developpers
 
-## Build image
+## Build images
 
-Run [packaging/build.sh](./packaging/build.sh) to build the image:
+Run [packaging/build.sh](./packaging/build.sh) to build everything needed:
 
     ./packaging/build.sh --help
     age: ./packaging/build.sh [--localdeploy] [--distantdeploy] [--arm] [--x86]
 
-       By default, both x86 and arm are build, no deploy is done   
+       By default, both x86 and arm images are build, no deploy is done
 
 --distantdeploy will deploy the image on github and is adapted for CI building
 --localdeploy will generate a package that you can then retrieve on an other machine, untar, and run
 
 ## Development
 
-	docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml build
-    ./rundev.sh
+First build images locally:
 
-Launch your [browser](http://localhost:80)
+    # x86
+    ./packaging/build.sh -x86
+    # arm
+    ./packaging/build.sh -arm
+
+Then run the app:
+    
+    # x86
+    ./rundev.sh
+    # arm
+    ARCH=arm ./rundev.sh
+
+And go to [http://localhost](http://localhost)
 

@@ -18,6 +18,13 @@ function display_status(){
   ls -al .
 }
 
+function update_rights(){
+  # updating back rights
+  docker-compose -f  docker/docker-compose.exec.yml run --user='root' --entrypoint chown node -R node:node .
+  # updating front rights
+  docker-compose -f  docker/docker-compose.exec.yml run --user='root' -w /home/node/app/front --entrypoint chown node -R node:node .
+}
+
 
 DEPLOY_SCRIPT=""
 ARCH=""
@@ -43,6 +50,7 @@ done
 
 SCRIPT_PATH=$(cd `dirname $0` && pwd)
 cd ${SCRIPT_PATH}/..
+update_rights
 display_status
 ./npm-front install
 ./npm-back install

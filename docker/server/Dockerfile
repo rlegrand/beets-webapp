@@ -16,7 +16,7 @@ COPY ${dockerfile_parent_path}/to_add/beets-library.blb ./lib/
 
 RUN  apt-get update && \
 apt-get install -y python3-dev python3-pip && \
-pip3 install beets
+pip3 install beets typing
 
 # -- retrieve front/back devs
 

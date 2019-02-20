@@ -14,5 +14,5 @@ services:
     user: node
     working_dir: /home/node/app/back
     volumes:
-      - ../back/:/home/node/app/front
-      - ../front/:/home/node/app/back
+      - ../front/:/home/node/app/front
+      - ../back/:/home/node/app/back
