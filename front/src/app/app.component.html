@@ -1,10 +1,43 @@
-<header>
-  <h1>Beets webapp</h1>
+<header class="navbar navbar-dark bg-dark box-shadow" id="topHeader">
+
+  <h1>
+    <img src="/assets/headphones.svg" width="40px" />
+    Beets Webapp
+  </h1>
 </header>
 
 <criteria-list (selectedElement)="selectAlbum($event)" [list]="albumsList" [label]="'albums'"></criteria-list>
 <criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByNameList" [label]="'albums artists (name)'"></criteria-list>
 <criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByDateList" [label]="'albums artists (added)'"></criteria-list>
+
+<div class="top-container">
+
+<aside>
+  <ul class="list-group" >
+    <li class="list-group-item ">
+      <nav>
+        albums
+      </nav>
+    </li>
+    <li class="list-group-item">
+      <nav>
+        artists
+      </nav>
+    </li>
+    <li class="list-group-item">
+      <nav>
+        playlists      
+      </nav>
+    </li>
+  </ul>
+</aside>
+
+<section>
+  Section content
+</section>
+
+</div>
+
 
 <form class="requestForm" (submit)="getSongs()" >
   <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
