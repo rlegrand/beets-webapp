@@ -19,10 +19,10 @@ function display_status(){
 }
 
 function update_rights(){
-  # updating back rights
-  docker-compose -f  docker/docker-compose.exec.yml run --user='root' --entrypoint chown node -R node:node .
   # updating front rights
-  docker-compose -f  docker/docker-compose.exec.yml run --user='root' -w /home/node/app/front --entrypoint chown node -R node:node .
+  docker-compose -f  docker/docker-compose.exec.yml run --user='root' --entrypoint chown node -R node:node .
+  # updating back rights
+  docker-compose -f  docker/docker-compose.exec.yml run --user='root' -w /home/node/app/back --entrypoint chown node -R node:node .
 }
 
 
