@@ -12,7 +12,7 @@ services:
   node:
     image: node:8.11.3-jessie
     user: node
-    working_dir: /home/node/app/back
+    working_dir: /home/node/app/front
     volumes:
       - ../front/:/home/node/app/front
       - ../back/:/home/node/app/back
