@@ -172,8 +172,51 @@ header h1 img{
 }
 
 aside{
-  min-width: 20%;
-  max-width: 30%;
+  overflow: hidden;
+}
+
+aside.hide{
+  width:3.5em;
+}
+
+aside nav{
+  margin-left: 2.5em;
+}
+
+nav.album:before{
+  display:block;
+  content:"";
+  float: left;
+  background-image: url(assets/album_128.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 2em;
+  height: 2em;
+  margin-left: -2.5em;
+}
+
+nav.artist:before{
+  display:block;
+  content:"";
+  float: left;
+  background-image: url(assets/artist_128.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 2em;
+  height: 2em;
+  margin-left: -2.5em;
+}
+
+nav.playlistbtn:before{
+  display:block;
+  content:"";
+  float: left;
+  background-image: url(assets/playlist_128.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 2em;
+  height: 2em;
+  margin-left: -2.5em;
 }
 
 section{

@@ -10,22 +10,28 @@
 <criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByNameList" [label]="'albums artists (name)'"></criteria-list>
 <criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByDateList" [label]="'albums artists (added)'"></criteria-list>
 
+<form class="requestForm" (submit)="getSongs()" >
+  <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
+  <input type="submit">
+</form>
+
 <div class="top-container">
 
 <aside>
+  <!-- use class "closed" on aside to hide text -->
   <ul class="list-group" >
     <li class="list-group-item ">
-      <nav>
+      <nav class="album">
         albums
       </nav>
     </li>
     <li class="list-group-item">
-      <nav>
+      <nav class="artist">
         artists
       </nav>
     </li>
     <li class="list-group-item">
-      <nav>
+      <nav class="playlistbtn">
         playlists      
       </nav>
     </li>
@@ -39,9 +45,5 @@
 </div>
 
 
-<form class="requestForm" (submit)="getSongs()" >
-  <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
-  <input type="submit">
-</form>
 
 <custom-player [playlist]="songsResponse.songs" ></custom-player>
