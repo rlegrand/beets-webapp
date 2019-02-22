@@ -1,5 +1,13 @@
 services:
   - docker
 
+branches:
+  only:
+    - master
+
+matrix:
+  include:
+    - if: commit_message =~ /build-v[0-9\.]+/
+
 script:
   - ./packaging/build.sh --distantdeploy
