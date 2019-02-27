@@ -69,13 +69,6 @@ h1 {
     font-weight: bolder;
     padding: 0.5em 0 0.3em 4%;
 }
-    h1 small {
-        display: block;
-        font-size: 50%;
-        color: #888;
-        background: #050505;
-        padding-left: 0.1em;
-    }
 
 h2 {
     font: 2em open_sanslight, "Gill Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -156,8 +149,10 @@ header{
 }*/
 
 header h1{
+  display: flex;
+  flex-flow: column;
+  font-size: smaller;
   color: whitesmoke;
-  text-align: center;
 }
 
 header h1 img{
@@ -173,6 +168,12 @@ header h1 img{
 
 aside{
   overflow: hidden;
+  padding: 1em 1em 1em 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-radius: 0.3em;
+  box-shadow: 0 0 2em #DDD;
 }
 
 aside.hide{
@@ -181,6 +182,7 @@ aside.hide{
 
 aside nav{
   margin-left: 2.5em;
+  cursor: pointer;
 }
 
 nav.album:before{
@@ -193,6 +195,7 @@ nav.album:before{
   width: 2em;
   height: 2em;
   margin-left: -2.5em;
+  cursor: pointer;
 }
 
 nav.artist:before{
@@ -205,6 +208,7 @@ nav.artist:before{
   width: 2em;
   height: 2em;
   margin-left: -2.5em;
+  cursor: pointer;
 }
 
 nav.playlistbtn:before{
@@ -217,10 +221,26 @@ nav.playlistbtn:before{
   width: 2em;
   height: 2em;
   margin-left: -2.5em;
+  cursor: pointer;
 }
 
 section{
   flex: 1;
+  padding: 1em;
+}
+
+button.toggle{
+  -webkit-appearance: none;
+  border: none;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
+  width: 2.5em;
+  height: 2.5em;
+  background-color: transparent;
+  background-image: url(assets/toggler.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  cursor: pointer;
 }
 
 .hide{
@@ -268,13 +288,9 @@ button.criteria{
 /* --------------------------------------------------------------------------- */
 
 .requestForm{
-    margin-top: 2em;
-    border: 1px solid #DDD;
-    border-radius: 0.5em;
-    box-shadow: 0.15em -0.15em 1em #DDD;
     padding: 0.3em;
-    width: 70%;
-    height: 2em;
+    width: 50%;
+    margin: auto;
     display: flex;
     flex-direction: line;
     justify-content: space-around;
@@ -290,12 +306,16 @@ button.criteria{
 }
 
 .requestForm input[type="text"]{
-    flex: 4;
+  width: 100%;
 }
 
 .requestForm input[type="submit"]{
     -webkit-appearance: none;
-    flex: 1;
+    width: 2em;
+    height: 2em;
+    background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDE3Ni4yOTIgMTc2LjI5MiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTc2LjI5MiAxNzYuMjkyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij4KPHBhdGggZD0iTTI0LjAyNyw0Ni4zMzNjLTQuMzIsMTYuMTI1LTIuMTAzLDMyLjk2OCw2LjI0NCw0Ny40MjZjMTEuMTMyLDE5LjI4MSwzMS44OTIsMzEuMjU5LDU0LjE3OCwzMS4yNTkgIGM4LjQxMSwwLDE2Ljc0NS0xLjcyOSwyNC40NzQtNS4wM2wzMi41MDcsNTYuMzAzbDEyLjk5LTcuNWwtMzIuNTA4LTU2LjMwNWMxMS4xNzQtOC4zNTMsMTkuMTktMjAuMTE3LDIyLjg1Ni0zMy44MDIgIGM0LjMyLTE2LjEyNSwyLjEwMy0zMi45NjgtNi4yNDQtNDcuNDI2QzEyNy4zOTMsMTEuOTc4LDEwNi42MzMsMCw4NC4zNDcsMEM3My40MzUsMCw2Mi42NDcsMi44OTksNTMuMTQ4LDguMzgzICBDMzguNjksMTYuNzMsMjguMzQ5LDMwLjIwOCwyNC4wMjcsNDYuMzMzeiBNODQuMzQ3LDE1YzE2Ljk0NCwwLDMyLjcyNyw5LjEwNCw0MS4xODgsMjMuNzU5YzYuMzQ0LDEwLjk4OCw4LjAyOSwyMy43ODksNC43NDUsMzYuMDQ0ICBjLTMuMjgzLDEyLjI1NS0xMS4xNDMsMjIuNDk5LTIyLjEzMSwyOC44NDJjLTcuMjIyLDQuMTY5LTE1LjQxNiw2LjM3My0yMy42OTksNi4zNzNjLTE2Ljk0NCwwLTMyLjcyNy05LjEwNC00MS4xODgtMjMuNzU5ICBjLTYuMzQ0LTEwLjk4OC04LjAyOS0yMy43ODgtNC43NDUtMzYuMDQzQzQxLjgwMSwzNy45Niw0OS42NiwyNy43MTcsNjAuNjQ4LDIxLjM3M0M2Ny44NywxNy4yMDQsNzYuMDY0LDE1LDg0LjM0NywxNXoiIGZpbGw9IiMwMDAwMDAiLz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPC9zdmc+Cg==);
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
 /* --------------------------------------------------------------------------- */

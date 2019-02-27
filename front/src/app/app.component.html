@@ -4,20 +4,17 @@
     <img src="/assets/headphones.svg" width="40px" />
     Beets Webapp
   </h1>
+  <form class="requestForm" (submit)="getSongs()" #documentEditForm="ngForm" >
+    <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
+    <input type="submit" title="search" value="" >
+  </form>
 </header>
-
-<criteria-list (selectedElement)="selectAlbum($event)" [list]="albumsList" [label]="'albums'"></criteria-list>
-<criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByNameList" [label]="'albums artists (name)'"></criteria-list>
-<criteria-list (selectedElement)="selectAlbumArtist($event)" [list]="albumsArtistByDateList" [label]="'albums artists (added)'"></criteria-list>
-
-<form class="requestForm" (submit)="getSongs()" >
-  <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
-  <input type="submit">
-</form>
 
 <div class="top-container">
 
 <aside>
+
+  <button class="toggle"></button>
   <!-- use class "closed" on aside to hide text -->
   <ul class="list-group" >
     <li class="list-group-item ">
