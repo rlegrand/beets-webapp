@@ -1,18 +1,19 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes, /*PreloadAllModules, PreloadingStrategy,NoPreloading*/ } from '@angular/router';
+import { RouterModule, Routes /*, PreloadAllModules, PreloadingStrategy,NoPreloading*/ } from '@angular/router';
+
+import { AlbumsComponent }  from './albums.component';
+import { ArtistsComponent }  from './artists.component';
 
 const appRoutes: Routes= [
   {
-    path: 'maingui',
-    component: '
-    loadChildren: 'app/maingui/maingui.module#MainGuiModule',
-    canActivate:[AuthenticatedGuard]
+    path: 'albums',
+    component: AlbumsComponent
   },
   {
-    path: 'empty',
-    component: Empty
+    path: 'artists',
+    component: ArtistsComponent
   },
-  { path: '', redirectTo: '/maingui', pathMatch: 'full' }
+  { path: '', redirectTo: '/albums', pathMatch: 'full' }
 ];
 
 

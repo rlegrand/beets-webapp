@@ -1,13 +1,23 @@
 
-export interface AlbumsArtistResponse{
-    data: {albumartist:string, addedDate:string}[]
+
+export interface AlbumArtistRaw{
+    name:string,
+    addedDate:string
 }
 
-export interface AlbumsArtist{
-    data: {albumartist:string, addedDate:Date}[]
+export interface AlbumArtist{
+    name:string,
+    addedDate:Date
+}
+
+export interface AlbumArtistsResponse{
+    data: AlbumArtistRaw[]
+}
+
+export interface Album{
+  name: string
 }
 
 export interface AlbumsResponse{
-    data: {album: string}[]
-
+  data: Album[]
 }

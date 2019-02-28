@@ -19,12 +19,22 @@
   <ul class="list-group" >
     <li class="list-group-item ">
       <nav class="album">
+        <a
+          routerLinkActive="active"
+          [routerLink]="'/albums'"
+        >
         albums
+      </a>
       </nav>
     </li>
     <li class="list-group-item">
       <nav class="artist">
-        artists
+        <a
+          routerLinkActive="active"
+          [routerLink]="'/artists'"
+        >
+          artists
+        </a>
       </nav>
     </li>
     <li class="list-group-item">
@@ -36,7 +46,7 @@
 </aside>
 
 <section>
-  Section content
+  <router-outlet></router-outlet>
 </section>
 
 </div>

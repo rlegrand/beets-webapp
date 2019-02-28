@@ -120,15 +120,15 @@ class StandaloneServer{
                     .map( (elt, idx) => elt.trim() );
 
                     return {
-                        albumartist: delimedElt[0],
+                        name: delimedElt[0],
                         addedDate: delimedElt[1]
                     }
 
                 })
                 .filter( (elt, idx) => {
-                    const keep= ( artists.indexOf(elt.albumartist) == -1 );
+                    const keep= ( artists.indexOf(elt.name) == -1 );
                     if (keep){
-                        artists.push(elt.albumartist);
+                        artists.push(elt.name);
                         return true;
                     }
                     return false;
@@ -168,7 +168,7 @@ class StandaloneServer{
                     return 0;
                 } );
 
-                return res.map( (elt, idx) =>{ return {album: elt}; } );;
+                return res.map( (elt, idx) =>{ return {name: elt}; } );;
             } );
 
         }
