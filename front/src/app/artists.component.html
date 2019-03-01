@@ -2,6 +2,6 @@
 <ul>
   <li *ngFor="let albumartist of albumsArtist">
     {{ albumartist.name }}
-    <img alt="Image not found" src="getImage(albumartist.name)" />
+    <img alt="Image not found" [src]="getImage(albumartist.name) | async" />
   <li>
 </ul>

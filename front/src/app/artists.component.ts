@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
 
+import { Observable } from 'rxjs';
+
 import {SongsResponse} from './model/songs-response';
 import {AlbumArtistsResponse, AlbumArtist, AlbumsResponse} from './model/albums-response';
 
@@ -29,15 +31,8 @@ export class ArtistsComponent implements OnInit {
         } );
     }
 
-    getArtistId= (artist:string): string => {
-      encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artist}&fmt=json`)
-      
-      
-    }
-
-    getImage= (artist:string): string => {
-
-      
+    getImage= (artistName:string): Observable<string> => {
+      return this.beetApi.getArtistImage(artistName);
 
     }
     

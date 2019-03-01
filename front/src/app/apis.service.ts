@@ -1,5 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers, RequestOptions, Response} from '@angular/http';
+import { HttpClient, HttpHeaders }  from '@angular/common/http';
+
+import { Observable, pipe, from } from 'rxjs';
+import { map, flatMap, filter, first, catchError } from 'rxjs/operators';
 
 import {AlbumArtistsResponse, AlbumsResponse} from './model/albums-response';
 
@@ -7,65 +10,62 @@ import {AlbumArtistsResponse, AlbumsResponse} from './model/albums-response';
 @Injectable()
 export class BeetApi {
 
-	constructor(private http: Http){}
+  private httpOptions= {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/json'
+      })
+    }
 
-	getSongs= (request: string) => {
 
-		let headers = new Headers({ 'Content-Type': 'application/json' });
-		let options = new RequestOptions({ headers: headers });
+  constructor(private http: HttpClient){}
 
-		return this.http.post('/api/beets/songs', {beetsfilter:request}, options )
+  getSongs= (request: string) => {
+
+		return this.http.post('/api/beets/songs', {beetsfilter:request}, this.httpOptions )
 	}
 
 	getAlbumArtists= (): PromiseLike<AlbumArtistsResponse>  => {
 
-		let headers = new Headers({ 'Content-Type': 'application/json' });
-		let options = new RequestOptions({ headers: headers });
-
-		return this.http.post('/api/beets/albumartists', {}, options ).toPromise()
-				.then( (response: Response) => (<AlbumArtistsResponse> response.json()) );
+      return this.http.post<AlbumArtistsResponse>('/api/beets/albumartists', {}, this.httpOptions )
+      .pipe( map( (albumArtistsResponse: AlbumArtistsResponse) : AlbumArtistsResponse => {
+        albumArtistsResponse.data= albumArtistsResponse.data.filter( (artist:any, index: number) => index == 0 );
+        return albumArtistsResponse;
+      } ) )
+      .toPromise()
 	}
 
 	getAlbums= (): PromiseLike<AlbumsResponse> => {
 
-		let headers = new Headers({ 'Content-Type': 'application/json' });
-		let options = new RequestOptions({ headers: headers });
-
-		return this.http.post('/api/beets/albums', {}, options ).toPromise()
-				.then( (response: Response) => (<AlbumsResponse> response.json()) );	
+		return this.http.post<AlbumsResponse>('/api/beets/albums', {}, this.httpOptions ).toPromise();
 	}
 
-      encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artist}&fmt=json`)
+	getArtistImage= (artistName): Observable<string> => {
 
-	getArtistImage= (): PromiseLike<string> => {
+        let idUri= encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artistName}&fmt=json`);
 
-		let headers = new Headers({ 'Content-Type': 'application/json' });
-		let options = new RequestOptions({ headers: headers });
-
-        let idUri= encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artist}&fmt=json`);
-
-        this.http.get('idUri')
-        .map( (response: Response): Response => {
-          const artists: any[]= ( <any> response.json() ).artists;
+        return this.http.get<any>(idUri)
+        .pipe( flatMap( (response: any): Observable<any> => {
+          const artists: any[]= response.artists;
           if (!artists || artists.length == 0){
             throw "no artist found";
           }
           const artistId: string= artists[0].id;
-          let dataUri= encodeUri(`http://musicbrainz.org/ws/2/artist/${artistId}?inc=url-rels&fmt=json`);
-          return this.http.get(dataUri);
-        }
-        .map( (response:: Response): string => {
-          let res= "";
-          const filteredRelations= ( <any> response.json() ).relations.filter( (relation: any) => relation.url.match(/wikimedia/) );
+          let dataUri= encodeURI(`http://musicbrainz.org/ws/2/artist/${artistId}?inc=url-rels&fmt=json`);
+          return this.http.get<any>(dataUri);
+        } ))
+        .pipe( map( (response: any): string => {
+          const filteredRelations= response.relations.filter( (relation: any) => relation.url.match(/wikimedia/) );
           if ( !filteredRelations || filteredRelations.length == 0 ){
-            throw "no image found"
+            throw "no image found";
           }
-          return filteredRelations[0].url;
-        }).toPromise()
-        .catch( (error: any) => {
+          return <string> filteredRelations[0].url;
+        }))
+        .pipe( catchError( (error: any) => {
           console.error(error);
           return ""
-        });
+        }));
+
+        
 	}
 
 }

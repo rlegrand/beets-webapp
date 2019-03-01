@@ -1,6 +1,6 @@
 import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -15,7 +15,7 @@ import {BeetApi} from './apis.service';
 import {Utils} from './utils.service';
 
 @NgModule({
-  imports:      [ BrowserModule, HttpModule, FormsModule, AppRoutingModule ],
+  imports:      [ BrowserModule, HttpClientModule, FormsModule, AppRoutingModule ],
   declarations: [ AppComponent, AlbumsComponent, ArtistsComponent, Player ],
   providers: [BeetApi, Utils],
   bootstrap:    [ AppComponent ]

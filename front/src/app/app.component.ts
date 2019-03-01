@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
 
         this.beetApi.getSongs(this.textRequest)
         .subscribe( (response: Response) => {
-            this.songsResponse=  <SongsResponse> response.json();
+          this.songsResponse=  <SongsResponse> response.json();
         } );
     }
 
