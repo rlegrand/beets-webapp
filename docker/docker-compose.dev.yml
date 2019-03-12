@@ -5,6 +5,7 @@ services:
     volumes:
       - ../back:/app/back
       - ../front/dist:/app/front
+      - dbdata:/app/data
   ng:
     build: ../docker/dev/ngcli/
     volumes:

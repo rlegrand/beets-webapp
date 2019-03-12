@@ -1,12 +1,9 @@
 'use strict';
 
-let express = require('express'),
-    http = require('http'),
-    bodyParser= require('body-parser'),
-    path= require('path'),
-    fs= require('fs'),
-    spawn= require('child_process').spawn,
-    yaml= require('js-yaml');
+import express from 'express',
+import http from 'http',
+import bodyParser from 'body-parser';
+import { BeetsHelper } from './beets';
 
 
 let defaultConfigCallback= function(appServer){
@@ -15,171 +12,23 @@ let defaultConfigCallback= function(appServer){
     .use(express.static('/app/front/beetswebapp/'));
 }
 
-
 class StandaloneServer{
 
     constructor(configServerCallbak){
         this.configServerCallbak= configServerCallbak? configServerCallbak: defaultConfigCallback;
         this.server= this.initServer();
+        this.beetsHelper= new BeetsHelper();
     }
 
 
-    buildBeetsApi(appServer){
+    buildBeetsApi= (appServer) => {
 
-        let that= this;
-
-
-        let beetRequest = function(args){
-
-            return new Promise(
-                function(resolve, reject){
-
-                    let updatedArgs= ['-c', that.getBeetsConfigPath()].concat(args);
-
-                    let beet= spawn('beet', updatedArgs, {shell:true});
-
-                    let res= '';
-
-                    beet.stdout.on('data', (data) => {
-                        let dataStr= data.toString();
-                        //console.log('data retrieved:');
-                        //console.log(dataStr);
-                        res+= dataStr;
-                    });
-
-
-                    beet.on('close', (code) => {
-                        resolve(
-                            res.split('\n')
-                            .filter( (elt, idx) => elt && elt.trim().length > 0 )
-                        );
-                    });
-
-                }
-            );
-
-        }
-
-
-        let beetsSongsRequest= function(filter){
-
-            let delim= '<#>',
-                args= ['ls', '-f', `'$path ${delim} $artist ${delim} $album ${delim} $title'`, filter];
-
-            return beetRequest(args)
-            .then( (data) => {
-
-                return data.map( (elt, idx) => {
-
-                    let delimedElt= elt.split(delim)
-                    .map( (elt, idx) => elt.trim() );
-
-                    let res=  {
-                        path: delimedElt[0].substring( that.getBeetsConfig().directory.length ),
-                        artist: delimedElt[1],
-                        album: delimedElt[2],
-                        title: delimedElt[3]
-                    }
-                    // console.log('data returned:');
-                    // console.log(res);
-                    return res;
-                });
-
-            } );
-
-        }
-
-        // Not used anymore - sort by name example
-        /*
-        let beetsAlbumArists= function(){
-
-            return beetRequest(['ls', '-af', `'$albumartist'`])
-            .then( (data) => {
-                return data.sort( (w1, w2) => {
-                    let w1l= w1.toLowerCase();
-                    let w2l= w2.toLowerCase();
-                    if (w1l < w2l) return -1;
-                    if (w1l > w2l) return 1;
-                    return 0;
-                } )
-                .filter( (elt, idx, self) => idx == self.indexOf(elt) );
-            } );
-
-        }*/
-
-        let beetsAlbumArists= function(){
-            let delim= '<#>';
-
-            let artists= [];
-
-            return beetRequest(['ls', '-a', 'added-', '-f', `'$albumartist ${delim} $added'`])
-            .then( (data) => {
-                return data.map( (elt, idx) => {
-
-                    let delimedElt= elt.split(delim)
-                    .map( (elt, idx) => elt.trim() );
-
-                    return {
-                        name: delimedElt[0],
-                        addedDate: delimedElt[1]
-                    }
-
-                })
-                .filter( (elt, idx) => {
-                    const keep= ( artists.indexOf(elt.name) == -1 );
-                    if (keep){
-                        artists.push(elt.name);
-                        return true;
-                    }
-                    return false;
-                } )
-            } );
-
-        }
-
-
-        let beetsArists= function(){
-
-            return beetRequest(['ls', '-af', "'$albumartist'"])
-            .then( (data) => {
-                return data.sort( (w1, w2) => {
-                    let w1l= w1.toLowerCase();
-                    let w2l= w2.toLowerCase();
-                    if (w1l < w2l) return -1;
-                    if (w1l > w2l) return 1;
-                    return 0;
-                } )
-                .filter( (elt, idx, self) => idx == self.indexOf(elt) );
-            } );
-
-        }
-
-
-        let beetsAlbums= function(){
-
-            return beetRequest(['ls', '-af', "'$album'"])
-            .then( (data) => {
-
-                let res= data.sort( (w1, w2) => {
-                    let w1l= w1.toLowerCase();
-                    let w2l= w2.toLowerCase();
-                    if (w1l < w2l) return -1;
-                    if (w1l > w2l) return 1;
-                    return 0;
-                } );
-
-                return res.map( (elt, idx) =>{ return {name: elt}; } );;
-            } );
-
-        }
-
-
-        appServer.post('/api/beets/songs', function(req, res){
+      appServer.post('/api/beets/songs', (req, res) => {
 
             let filter= req.body.beetsfilter;
             console.log(`Using beet filter ${filter}`);
 
-            beetsSongsRequest(filter)
+            this.beetsHelper.beetsSongsRequest(filter)
             .then( (songs) => {
                 res.send({songs: songs});
             })
@@ -191,11 +40,11 @@ class StandaloneServer{
         });
 
 
-        appServer.post('/api/beets/albumartists', function(req, res){
+        appServer.post('/api/beets/albumartists', (req, res) => {
 
             console.log(`Retrieving all album artists`);
 
-            beetsAlbumArists()
+            this.beetsHelper.beetsAlbumArists()
             .then( (albumArtists) => {
                 res.send({data: albumArtists});
             })
@@ -207,11 +56,11 @@ class StandaloneServer{
         });
 
 
-        appServer.post('/api/beets/albums', function(req, res){
+        appServer.post('/api/beets/albums', (req, res) => {
 
             console.log(`Retrieving all albums`);
 
-            beetsAlbums()
+            this.beetsHelper.beetsAlbums()
             .then( (albums) => {
                 res.send({data: albums});
             })
@@ -222,37 +71,14 @@ class StandaloneServer{
 
         });         
 
-            
-
-
     }
 
-    getBeetsConfigPath(){
-        if (!this.beetsConfPath){
-            this.beetsConfPath= '/app/beets/config/config.yaml';
-        }
-        return this.beetsConfPath;
-    }
-
-
-    getBeetsConfig(){
-        if (!this.beetsConf){
-            this.beetsConf= yaml.safeLoad(fs.readFileSync(this.getBeetsConfigPath(), 'utf8'));
-        }
-
-        return this.beetsConf;
-    }
-
-
-
-    initServer(){
-
-        let that= this;
+    initServer= () => {
 
         const appServer= express();
-        that.configServerCallbak(appServer);
+        this.configServerCallbak(appServer);
 
-        const beetsConf= that.getBeetsConfig();
+        const beetsConf= this.getBeetsConfig();
         appServer.use(express.static(beetsConf.directory));
 
         this.buildBeetsApi(appServer);
@@ -261,15 +87,13 @@ class StandaloneServer{
     }
 
 
-    getServer(){
+    getServer= () => {
         return this.server;
     }
 
 
-    run(port){
-
-        let that= this;
-        that.server.listen(port, function(){
+    run= (port) => {
+        this.server.listen(port, function(){
             console.log(`server listening on ${port}`);
         });
     }

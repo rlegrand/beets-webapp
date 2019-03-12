@@ -43,7 +43,7 @@ export class BeetApi {
 
         let idUri= encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artistName}&fmt=json`);
 
-        return this.http.get<any>(idUri)
+        return this.http.get(idUri)
         .pipe( flatMap( (response: any): Observable<any> => {
           const artists: any[]= response.artists;
           if (!artists || artists.length == 0){
@@ -54,11 +54,11 @@ export class BeetApi {
           return this.http.get<any>(dataUri);
         } ))
         .pipe( map( (response: any): string => {
-          const filteredRelations= response.relations.filter( (relation: any) => relation.url.match(/wikimedia/) );
+          const filteredRelations= response.relations.filter( (relation: any) => relation.url.resource.match(/wikimedia|wikidata/) );
           if ( !filteredRelations || filteredRelations.length == 0 ){
             throw "no image found";
           }
-          return <string> filteredRelations[0].url;
+          return <string> filteredRelations[0].url.resource;
         }))
         .pipe( catchError( (error: any) => {
           console.error(error);

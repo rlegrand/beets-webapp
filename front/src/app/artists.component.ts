@@ -21,7 +21,8 @@ export class ArtistsComponent implements OnInit {
     constructor(private beetApi: BeetApi, private utils: Utils){}
 
     ngOnInit(){
-        this.getAlbumsArtists();
+      this.getAlbumsArtists();
+      // this.getImage("The Firm").subscribe( (imageUri: string) => console.log(imageUri) ;
     }
 
     getAlbumsArtists= () => {
