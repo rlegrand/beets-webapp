@@ -5,13 +5,14 @@ The webapp will evolve from time to time, actually it allows to make your own be
 
 # Use it
 
+## Usage
 On arm architectures:
 
-    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> beets-webapp-arm
+    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> rlegrand/beets-webapp-arm [action]
     
 On x86 architectures
 
-    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> beets-webapp-x86
+    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> rlegrand/beets-webapp-x86 [action]
 
 Where:
 * </path/to/beetsconf>
@@ -23,6 +24,23 @@ Where:
   * The path to the beets directory which contains your music
   * by default, it's $HOME/Music
   * otherwise you modified it in your conf, so retrieve it by running "grep directory /your/beets/config.yml"
+* [action]
+  * is not mandatory and by default maps to *server*
+  * Other possible values are: genmetadata
+
+## Start
+
+Create an allias which fits your needs
+
+    alias bwa=docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> rlegrand/beets-webapp-x86
+
+Generate metadata: Artists/Albums images will be retrieved in the webapp, but is a slow operation, so it's suggested to do it once before launching the server the first time
+
+    bwa genmetadata
+
+Then you're good to go, launch the server
+
+    bwa
 
 # Developpers
 
@@ -53,6 +71,8 @@ Then run the app:
     ./rundev.sh
     # arm
     ARCH=arm ./rundev.sh
+    # rundev can use args to specify the action, the default action is *server*, available actions are: server,genmetadata
+    ./rundev.sh genmetadata
 
 And go to [http://localhost](http://localhost)
 

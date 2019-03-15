@@ -5,7 +5,7 @@ services:
     build:
       context: ../
       dockerfile: ./docker/server/Dockerfile
-    image: beets-webapp${ARCH}
+    image: rlegrand/beets-webapp${ARCH}
     ports:
       - 80:80
     

@@ -1,7 +1,7 @@
 'use strict';
 
-import express from 'express',
-import http from 'http',
+import express from 'express';
+import http from 'http';
 import bodyParser from 'body-parser';
 import { BeetsHelper } from './beets';
 
@@ -12,12 +12,13 @@ let defaultConfigCallback= function(appServer){
     .use(express.static('/app/front/beetswebapp/'));
 }
 
-class StandaloneServer{
+export class StandaloneServer{
 
     constructor(configServerCallbak){
         this.configServerCallbak= configServerCallbak? configServerCallbak: defaultConfigCallback;
         this.server= this.initServer();
         this.beetsHelper= new BeetsHelper();
+        console.log(beetsHelper);
     }
 
 
@@ -78,7 +79,7 @@ class StandaloneServer{
         const appServer= express();
         this.configServerCallbak(appServer);
 
-        const beetsConf= this.getBeetsConfig();
+        const beetsConf= this.beetsHelper.getBeetsConfig();
         appServer.use(express.static(beetsConf.directory));
 
         this.buildBeetsApi(appServer);
@@ -101,4 +102,3 @@ class StandaloneServer{
 };
 
 
-new StandaloneServer().run(80);

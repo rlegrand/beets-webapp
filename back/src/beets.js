@@ -114,7 +114,7 @@ export class BeetsHelper{
   }
 
 
-  beetsAlbums= (){
+  beetsAlbums= () => {
 
     return this.beetRequest(['ls', '-af', "'$album'"])
       .then( (data) => {

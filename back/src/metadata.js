@@ -6,6 +6,8 @@ import { dbHelper } from './db';
 import { BeetsHelper } from './beets';
 
 
+const artistNotStored= { name: "ArtistNotStored", message: "Artist not found locally" }
+
 export class ArtistMetadata{
 
 
@@ -13,13 +15,17 @@ export class ArtistMetadata{
     this.beetsHelper= new BeetsHelper();
     this.dbHelper= dbHelper;
     this.ignoredArtists= of('Soundtrack','Various Artists');
-    this.artistNotStored= { name: "ArtistNotStored", message: "Artist not found locally" }
   }
 
-  http_get= (url, conf={}) => from( axios.get(url, conf).then( (response) => response.data ) ).zip( delay(1000) )
+  http_get= (url, conf={}) => 
+    from( axios.get(url, conf) )
+      .pipe(
+        map( (response) => of(response.data).pipe( delay(1000) ) ),
+        concatAll()
+      )
 
   getFromDB= (artistName) =>
-    from(dbHelper.getArtistUrl("nonexist"))
+    from(this.dbHelper.getArtistUrl("nonexist"))
       .pipe( 
         tap( (url) => {
           if (!url) throw artistNotStored ;
@@ -27,12 +33,12 @@ export class ArtistMetadata{
       )
 
   storeToDb= (artistName, url) =>
-    from(dbHelper.addArtistUrl(artistName, url))
+    from(this.dbHelper.addArtistUrl(artistName, url))
 
   getFromDiscogs= (artistName) => {
     const searchUri=`https://api.discogs.com/database/search?q=${artistName}&?type=artist&?artist=${artistName}`;
     const conf={ headers: {'User-Agent': 'BeetsWebapp', 'Authorization': 'Discogs token=xIFztFffPlHucUCxpNSybLPOmxnpEOBNQCfqWsdi' } }
-    return http_get( searchUri, conf )
+    return this.http_get( searchUri, conf )
       .pipe(
         // restrieving results field
         flatMap( (response) => from(response.results) ),
@@ -56,7 +62,7 @@ export class ArtistMetadata{
     let idUri= encodeURI(`http://musicbrainz.org/ws/2/artist/?query=artist:${artistName}&fmt=json`);
     const conf={ headers: {'User-Agent': 'BeetsWebapp' } }
 
-    return http_get(idUri, conf)
+    return this.http_get(idUri, conf)
       .pipe( 
         flatMap( (response) => {
           const artists= response.artists;
@@ -65,7 +71,7 @@ export class ArtistMetadata{
           }
           const artistId= artists[0].id;
           const dataUri= encodeURI( `http://musicbrainz.org/ws/2/artist/${artistId}?inc=url-rels&fmt=json` );
-          return http_get(dataUri, conf);
+          return this.http_get(dataUri, conf);
         } ),
         // get stream of relations
         flatMap( (response) => from(response.relations) ),
@@ -91,33 +97,41 @@ export class ArtistMetadata{
   }
   
   ignoreArtists= (artistName) =>
-    ignoredArtists
+    this.ignoredArtists
       .pipe( 
         count( (iartist) => iartist == artistName ) ,
         map( (count) => count > 0 )
       );
 
   getArtistImage= (artistName) => 
-    ignoreArtists(artistName)
+    this.ignoreArtists(artistName)
       .pipe(
         flatMap( (shouldIgnore) => 
-          iif( () => shouldIgnore, of({url:"/assets/unknown.jpg",needToStore:false}), getFromDB(artistName).map( (url) => {url:url,needToStore:false} ) )
+          iif( () => shouldIgnore, 
+            of({url:"/assets/unknown.jpg",needToStore:false}), 
+            this.getFromDB(artistName).map( (url) => ({url:url,needToStore:false}) ) )
         ),
         catchError(  (err) => {
-          if ( err.name == artistNotStored.name ) return of({url:"",needToStore:true);
+          if ( err.name == artistNotStored.name ) return of({url:"",needToStore:true});
           else throw err;
         }),
         flatMap( (data) => 
-          iif( () => data.url != "", of(data), getFromDiscogs(artistName).map( (url) => {url:url, needToStore: true}  )  )
+          iif( () => data.url != "", 
+            of(data), 
+            this.getFromDiscogs(artistName)
+            .pipe( map( (url) => ( {url:url, needToStore: true} )  ) ))
         ),
         flatMap( (data) => 
-          iif( () => data.url != "", of(url), getFromMsuicbrainz(artistName).map( (url) => {url: url, needToStore: true}  ) )
+          iif( () => data.url != "", 
+            of(data), 
+            this.getFromMsuicbrainz(artistName)
+            .pipe( map( (url) => ({url: url, needToStore: true})  ) ))
         ),
-        tap( (data) => { if (data.needToStore)  storeToDb(artistNotStored,url); } )
+        tap( (data) => { if (data.needToStore)  this.storeToDb(artistNotStored,url); } )
       )
 
 
-  store= (intervalValue) => {
+  store= () => {
     const albumArtists= this.beetsHelper.beetsAlbumArists();
     return zip(
       from(albumArtists),
@@ -129,46 +143,15 @@ export class ArtistMetadata{
           getArtistImage( artist ),
           of( index )
         )
-      )
+      ),
+      map( ([artist,image,idx]) => ({artist:artist,image:image,index:idx}) )
     )
   }
-
-  getSlowRequest(2200).pipe( concat( getSlowRequest(100) ) ) 
-    .subscribe( (artistIndexImage) => {
-      console.log( artistIndexImage[0], artistIndexImage[1], artistIndexImage[2] )
-    });
-  storeAlbumArtists= () => {
-
-    from( )
-      .then( (albumArtists) => {
-        albumArtists.forEach(  (albumartist) => {
-        }
-      });
-
-  }
-
-
-
 
 }
 
 
-
-const data= ["The Firm","Marvin Gaye","Johnny Cash","France Gall","Soundtrack","Various Artists","Badelt","GZA/Genius","Bee Gees","Blondie","KRS?One & Marley Marl","KRS?One","IAM","Boogie Down Productions","Ben E. King","Justice","Stevie Wonder","?dith Piaf","Ella Fitzgerald","DEVO","Joe Hisaichi","Ryuichi Sakamoto","Radio Elvis","Vangelis","Pink Floyd","Jim Morrison, music by The Doors","The Doors","The Jimi Hendrix Experience","Jimi Hendrix","Otis Redding","The Beatles","Fun","Miss White & The Drunken Piano","Beck","Chad & Jeremy","Belle and Sebastian","Momo Wandel Soumah","The Dresden Dolls","Holly Golightly","Oasis","De La Soul Featuring Chaka Khan","Cat Power","Aimee Mann","Ocean Colour Scene","Kate Nash","Pulp","Lou Reed","Elliott Smith","Trance Groove","Whitney Houston","Sonic Youth","PJ Harvey","The Stone Roses","The B?52s","Public Enemy","Mecano","Eric B. & Rakim","Mandingo","Manu Dibango","Madonna","The Smiths","Public Image Limited","Paul McCartney & Michael Jackson","Cyndi Lauper","New Order","The Stranglers","The Clash","Rick James","Grandmaster Flash & The Furious Five","Emmylou Harris","Depeche Mode","The Cure","Liliput","Sugarhill Gang","Sex Pistols","Joy Division","The Jacksons","Television","Ramones","Chic","Talking Heads","Michel Polnareff","Julie London","Fela And Afrika 70","Tony Allen","Queen","Bob Dylan","T.J. Stone","LaBelle","Charlie Feathers","Lynyrd Skynyrd","Iggy And The Stooges","Michael Jackson","The Temptations","The Jackson 5","Ofo The Black Company","Michael Jackson / Jackson Five","Flash Cadillac And The Continental Kids","Elton John","T. Rex","Tom Jones","The Who","The Rolling Stones","The Flamin' Groovies","Jethro Tull"]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 const levenshtein = (a, b) => {
   if (a.length === 0) return b.length
   if (b.length === 0) return a.length
@@ -205,5 +188,6 @@ const levenshtein = (a, b) => {
   return row[a.length]
 }
 
+*/
 
 

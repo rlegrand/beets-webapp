@@ -54,6 +54,7 @@ update_rights
 display_status
 ./npm-front install
 ./npm-back install
+./npm-back run build 
 ./ng build --prod
 
 # prepare any arch building

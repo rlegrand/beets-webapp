@@ -26,5 +26,6 @@ COPY front/dist/ front/
 
 WORKDIR back/
 
-CMD ["node","server"]
+ENTRYPOINT ["npm", "run", "app", "--"]
+CMD ["server"]
 

@@ -41,4 +41,4 @@ class DbHelper{
 const dbHelper= new DbHelper();
 dbHelper.init();
 
-export dbHelper;
+export default dbHelper;
