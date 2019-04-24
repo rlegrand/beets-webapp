@@ -8,11 +8,13 @@ let path= require('path'),
 
 export class BeetsHelper{
 
-  beetRequest = () => {
+  beetRequest = (args) => {
 
     return new Promise( (resolve, reject) => {
 
-        let updatedArgs= ['-c', this.getBeetsConfigPath()].concat(args);
+        let updatedArgs= ['-c', this.getBeetsConfigPath(), ...args];
+
+        console.log( `Beets args: ${ updatedArgs.join(' ')}` );
 
         let beet= spawn('beet', updatedArgs, {shell:true});
 

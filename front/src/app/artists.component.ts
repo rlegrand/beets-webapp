@@ -11,12 +11,14 @@ import {Utils} from './utils.service';
 
 @Component({
   selector: 'artists', 
-  templateUrl: 'artists.component.html'
+  templateUrl: 'artists.component.html',
+  styleUrls: ['artists.component.css'],
+
 })
 export class ArtistsComponent implements OnInit { 
 
     // Albums Artits to display (by date)
-    albumsArtist: AlbumArtist[]= [];
+    albumsArtists: AlbumArtist[]= [];
 
     constructor(private beetApi: BeetApi, private utils: Utils){}
 
@@ -28,14 +30,11 @@ export class ArtistsComponent implements OnInit {
     getAlbumsArtists= () => {
         this.beetApi.getAlbumArtists()
         .then( (response: AlbumArtistsResponse) => {
-            this.albumsArtist= this.utils.setDateToAlbumArtists(response.data);
+          this.albumsArtists= this.utils.setDateToAlbumArtists(response.data);
+          console.log('fy');
         } );
     }
 
-    getImage= (artistName:string): Observable<string> => {
-      return this.beetApi.getArtistImage(artistName);
-
-    }
     
 }
 

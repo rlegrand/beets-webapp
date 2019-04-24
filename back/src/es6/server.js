@@ -4,6 +4,9 @@ import express from 'express';
 import http from 'http';
 import bodyParser from 'body-parser';
 import { BeetsHelper } from './beets';
+import dbHelper from './db';
+import { ArtistMetadata } from './metadata';
+
 
 
 let defaultConfigCallback= function(appServer){
@@ -16,9 +19,9 @@ export class StandaloneServer{
 
     constructor(configServerCallbak){
         this.configServerCallbak= configServerCallbak? configServerCallbak: defaultConfigCallback;
-        this.server= this.initServer();
         this.beetsHelper= new BeetsHelper();
-        console.log(beetsHelper);
+        this.server= this.initServer();
+        this.artistMetaHelper= new ArtistMetadata();
     }
 
 
@@ -43,13 +46,23 @@ export class StandaloneServer{
 
         appServer.post('/api/beets/albumartists', (req, res) => {
 
-            console.log(`Retrieving all album artists`);
-
+          console.log(`Retrieving all album artists`);
+          
             this.beetsHelper.beetsAlbumArists()
+            .then( (albumsArtists) => {
+              return Promise.all( albumsArtists.map( (aa) =>
+                this.artistMetaHelper.getArtistImageOnly(aa.name).toPromise()
+                .then( (url) => {
+                  aa.url = url;
+                  return aa;
+                })
+              ) );
+            })
             .then( (albumArtists) => {
                 res.send({data: albumArtists});
             })
             .catch( (err) => {
+                console.error("ERROR GETTING ARTISTS");
                 console.error(err);
                 res.send(err);
             });     
@@ -70,7 +83,9 @@ export class StandaloneServer{
                 res.send(err);
             }); 
 
-        });         
+        });
+
+        
 
     }
 

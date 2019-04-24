@@ -5,7 +5,7 @@ services:
     volumes:
       - ../back:/app/back
       - ../front/dist:/app/front
-      - dbdata:/app/data
+      - ../ignore/dbdata:/app/data
     command: ${ACTION}
   ng:
     build: ../docker/dev/ngcli/
@@ -13,6 +13,3 @@ services:
       - ../front:/app/
     command: build --watch      
 
-volumes:
-  dbdata:
-    driver: local

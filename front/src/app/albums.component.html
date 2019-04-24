@@ -1,5 +1,13 @@
 
-<ul>
-  <li *ngFor="let album of albums">{{ album.name }}<li>
+<ul class="articleParent">
+  <li *ngFor="let album of albums">
+    <article>
+      <header>{{ album.name }} </header>
+      <img src="album.url">
+      <footer>
+        added on {{ album.addedDate }}
+      </footer>
+    </article>
+  </li>
 </ul>
 

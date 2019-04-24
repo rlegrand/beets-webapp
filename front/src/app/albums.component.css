@@ -1,0 +1,15 @@
+
+
+
+li{
+  list-style-type: none;
+}
+
+ul.articleParent{
+  display: flex;
+  justify-content: space-between;
+}
+
+ul.articleParent li{
+  width: 25%;
+}

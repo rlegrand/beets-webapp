@@ -6,7 +6,7 @@
     "email": "legrand.regis@gmail.com"
   },
   "scripts": {
-    "build": "babel src/ --out-dir=src/es5/ --presets=@babel/env --plugins=@babel/plugin-proposal-class-properties,@babel/plugin-proposal-export-default-from",
+    "build": "babel src/es6/ --out-dir=src/es5/ --presets=@babel/env --plugins=@babel/plugin-proposal-class-properties,@babel/plugin-proposal-export-default-from",
     "app": "node src/es5/beetswebapp"
   },
   "dependencies": {

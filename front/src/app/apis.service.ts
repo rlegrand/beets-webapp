@@ -27,10 +27,10 @@ export class BeetApi {
 	getAlbumArtists= (): PromiseLike<AlbumArtistsResponse>  => {
 
       return this.http.post<AlbumArtistsResponse>('/api/beets/albumartists', {}, this.httpOptions )
-      .pipe( map( (albumArtistsResponse: AlbumArtistsResponse) : AlbumArtistsResponse => {
-        albumArtistsResponse.data= albumArtistsResponse.data.filter( (artist:any, index: number) => index == 0 );
-        return albumArtistsResponse;
-      } ) )
+//      .pipe( map( (albumArtistsResponse: AlbumArtistsResponse) : AlbumArtistsResponse => {
+//        albumArtistsResponse.data= albumArtistsResponse.data.filter( (artist:any, index: number) => index == 0 );
+//        return albumArtistsResponse;
+//      } ) )
       .toPromise()
 	}
 

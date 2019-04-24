@@ -11,7 +11,7 @@ class DbHelper{
 
   init= () => {
 	this.db.serialize( () => {
-	  this.db.run('CREATE TABLE artistsUrls (artist TEXT, url TEXT)');
+	  this.db.run('CREATE TABLE IF NOT EXISTS artistsUrls (artist TEXT, url TEXT)');
 	} );
   }
 

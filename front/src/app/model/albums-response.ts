@@ -2,12 +2,14 @@
 
 export interface AlbumArtistRaw{
     name:string,
-    addedDate:string
+    addedDate:string,
+    url: string
 }
 
 export interface AlbumArtist{
     name:string,
-    addedDate:Date
+    addedDate:Date,
+    url: string
 }
 
 export interface AlbumArtistsResponse{
