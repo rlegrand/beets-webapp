@@ -1,10 +1,15 @@
 
-<ul class="articleParent">
+<ul class="articleList">
   <li *ngFor="let albumartist of albumsArtists">
     <article>
       <header> {{ albumartist.name }} </header>
-      <div class="imgContainer">
-        <img alt="Image not found" [src]="albumartist.url" />
+      <div class="imgTopContainer">
+        <div class="dummy"></div>
+        <div class="imgLowContainer">
+          <div class="imgContainer">
+            <img alt="Image not found" [src]="albumartist.url" />
+          </div>
+        </div>
       </div>
       <footer>
         added on {{ albumartist.addedDate }}
