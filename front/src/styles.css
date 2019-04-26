@@ -224,6 +224,18 @@ nav.playlistbtn:before{
   cursor: pointer;
 }
 
+nav.ongoing:before{
+  display:block;
+  content:"";
+  float: left;
+  background-image: url(assets/play_128.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 2em;
+  height: 2em;
+  margin-left: -2.5em;
+}
+
 section{
   flex: 1;
   padding: 1em;

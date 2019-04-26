@@ -17,12 +17,12 @@ export class Utils {
       const regex = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
       const dateArray = regex.exec(date); 
       return new Date(
-        parseInt(dateArray[0]),
-        parseInt(dateArray[1]), // Careful, month starts at 0!
-        parseInt(dateArray[2]),
+        parseInt(dateArray[1]),
+        parseInt(dateArray[2])-1, // Careful, month starts at 0!
         parseInt(dateArray[3]),
         parseInt(dateArray[4]),
-        parseInt(dateArray[5])
+        parseInt(dateArray[5]),
+        parseInt(dateArray[6])
       );
 
     }
@@ -35,6 +35,8 @@ export class Utils {
       }
     ) )
   }
+
+  getFormatedDate= (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 
   cloneAndSortAlbumArtits = (albumsArtist: AlbumArtist[]): AlbumArtist[] => {
     return albumsArtist.sort((a, b) => ('' + a.name).localeCompare(b.name));

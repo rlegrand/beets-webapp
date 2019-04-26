@@ -8,18 +8,38 @@ ul.articleList{
 
 ul.articleList li{
   width: 20%;
+  margin: 1em;
 }
 
 article{
   width: 100%;
-  margin: 1em;
+	padding: 0.5em 0.5em 0;
+	border: solid 1px #ccc;
+	border-radius: 1em;
+	box-shadow: 0 0 0.5em;
+}
+
+article header {
+	background-color: rgba(0, 8, 255, 0.12);
+	padding-left: 0.5em;
+	border-radius: 0.5em 0.5em 0 0;
+	font-size: small;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+article footer{
+	font-size: smaller;
+}
+
+article:hover{
+	cusrsor: pointer;
 }
 
 .imgTopContainer {
   display: inline-block;
   position: relative;
-  width: 50%;
-  box-shadow: 0 0 0.5em;
+  width: 100%;
 }
 
 .dummy {

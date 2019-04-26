@@ -20,7 +20,7 @@ export class ArtistsComponent implements OnInit {
     // Albums Artits to display (by date)
     albumsArtists: AlbumArtist[]= [];
 
-    constructor(private beetApi: BeetApi, private utils: Utils){}
+    constructor(private beetApi: BeetApi, public utils: Utils){}
 
     ngOnInit(){
       this.getAlbumsArtists();

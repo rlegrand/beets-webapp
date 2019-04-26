@@ -53,7 +53,8 @@ export class StandaloneServer{
               return Promise.all( albumsArtists.map( (aa) =>
                 this.artistMetaHelper.getArtistImageOnly(aa.name).toPromise()
                 .then( (url) => {
-                  aa.url = url;
+                  aa.url= url;
+                  aa.field= 'albumartist';
                   return aa;
                 })
               ) );
@@ -62,7 +63,6 @@ export class StandaloneServer{
                 res.send({data: albumArtists});
             })
             .catch( (err) => {
-                console.error("ERROR GETTING ARTISTS");
                 console.error(err);
                 res.send(err);
             });     

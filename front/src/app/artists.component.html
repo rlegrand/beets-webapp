@@ -11,9 +11,11 @@
           </div>
         </div>
       </div>
-      <footer>
-        added on {{ albumartist.addedDate }}
-      </footer>
+			<footer>
+				<p>Added on
+				<time [dateTime]="utils.getFormatedDate(albumartist.addedDate)"> {{ albumartist.addedDate.toDateString() }} </time>
+				</p>
+			</footer>
     </article>
   <li>
 </ul>

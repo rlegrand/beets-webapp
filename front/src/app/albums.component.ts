@@ -14,21 +14,21 @@ import {BeetApi} from './apis.service';
 export class AlbumsComponent implements OnInit { 
 
 
-    //Albums to display
-    albums: Album[]= [];
+  //Albums to display
+  albums: Album[]= [];
 
-    constructor(private beetApi: BeetApi ){}
+  constructor(private beetApi: BeetApi ){}
 
-    ngOnInit(){
-        this.getAlbums();
-    }
+  ngOnInit(){
+    this.getAlbums();
+  }
 
-    getAlbums= () => {
-        this.beetApi.getAlbums()
-        .then( (response: AlbumsResponse) => {
-            this.albums=  response.data;
-        } );
-    }
-   
+  getAlbums= () => {
+    this.beetApi.getAlbums()
+      .then( (response: AlbumsResponse) => {
+        this.albums=  response.data;
+      } );
+  }
+
 }
 
