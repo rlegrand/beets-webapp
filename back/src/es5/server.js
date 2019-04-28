@@ -53,6 +53,7 @@ var StandaloneServer = function StandaloneServer(configServerCallbak) {
         return Promise.all(albumsArtists.map(function (aa) {
           return _this.artistMetaHelper.getArtistImageOnly(aa.name).toPromise().then(function (url) {
             aa.url = url;
+            aa.field = 'albumartist';
             return aa;
           });
         }));
@@ -61,7 +62,6 @@ var StandaloneServer = function StandaloneServer(configServerCallbak) {
           data: albumArtists
         });
       }).catch(function (err) {
-        console.error("ERROR GETTING ARTISTS");
         console.error(err);
         res.send(err);
       });

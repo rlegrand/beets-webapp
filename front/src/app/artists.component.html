@@ -1,7 +1,7 @@
 
 <ul class="articleList">
   <li *ngFor="let albumartist of albumsArtists">
-    <article>
+    <article (click)="search(albumartist.field, albumartist.name)"  >
       <header> {{ albumartist.name }} </header>
       <div class="imgTopContainer">
         <div class="dummy"></div>

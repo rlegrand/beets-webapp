@@ -4,7 +4,7 @@ import { Response } from '@angular/http';
 import { AlbumsResponse,Album } from './model/albums-response';
 
 
-import {BeetApi} from './apis.service';
+import {BeetApi} from './services/apis.service';
 
 @Component({
   selector: 'albums', 

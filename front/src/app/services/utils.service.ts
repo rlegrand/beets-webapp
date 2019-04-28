@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers, RequestOptions, Response} from '@angular/http';
 
-import {AlbumArtistsResponse, AlbumArtistRaw, AlbumArtist, AlbumsResponse} from './model/albums-response';
+import {AlbumArtistsResponse, AlbumArtistRaw, AlbumArtist, AlbumsResponse} from '../model/albums-response';
 
 
 @Injectable()
@@ -31,7 +31,8 @@ export class Utils {
       {
         name: albumArtist.name,
         addedDate:getDate(albumArtist.addedDate),
-        url: albumArtist.url
+        url: albumArtist.url,
+        field: albumArtist.field
       }
     ) )
   }
@@ -40,6 +41,11 @@ export class Utils {
 
   cloneAndSortAlbumArtits = (albumsArtist: AlbumArtist[]): AlbumArtist[] => {
     return albumsArtist.sort((a, b) => ('' + a.name).localeCompare(b.name));
+  }
+
+  displayError= (e) => {
+    // TODO
+    console.error(e);
   }
 
 }

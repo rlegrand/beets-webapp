@@ -1,34 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
 
-import {SongsResponse} from './model/songs-response';
-import {BeetApi} from './apis.service';
-import {Utils} from './utils.service';
+import { SongsResponse } from './model/songs-response';
+import { BeetApi } from './services/apis.service';
+import { Utils } from './services/utils.service';
+import { DisplaySongsHelper } from './services/displaySongsHelper.service';
 
 @Component({
-  selector: 'app-root', 
+  selector: 'app-root',
   templateUrl: 'app.component.html'
 })
-export class AppComponent implements OnInit { 
+export class AppComponent implements OnInit {
 
-    textRequest: string;
-    songsResponse: SongsResponse= {songs:[]};
+  textRequest: string;
 
-  constructor(private beetApi: BeetApi, private utils: Utils){}
+  constructor(private dsh: DisplaySongsHelper) {
+    dsh.textRequest.subscribe((tr: string) => { console.log(tr); if (this.textRequest !== tr) this.textRequest = tr; })
+  }
 
-    ngOnInit(){ }
+  ngOnInit() { }
 
-    getSongs= () => {
-
-        if (this.textRequest === undefined || this.textRequest.length === 0){
-            return;
-        }
-
-        this.beetApi.getSongs(this.textRequest)
-        .subscribe( (response: Response) => {
-          this.songsResponse=  <SongsResponse> response.json();
-        } );
+  search = () => {
+    if (this.textRequest === undefined || this.textRequest.length === 0) {
+      return;
     }
 
-    
+    this.dsh.getAndDisplaySongs(this.textRequest);
+    return false;
+  }
+
+
 }

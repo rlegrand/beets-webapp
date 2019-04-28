@@ -4,7 +4,8 @@ import { HttpClient, HttpHeaders }  from '@angular/common/http';
 import { Observable, pipe, from } from 'rxjs';
 import { map, flatMap, filter, first, catchError } from 'rxjs/operators';
 
-import {AlbumArtistsResponse, AlbumsResponse} from './model/albums-response';
+import {AlbumArtistsResponse, AlbumsResponse} from '../model/albums-response';
+import { SongsResponse } from '../model/songs-response';
 
 
 @Injectable()
@@ -21,7 +22,7 @@ export class BeetApi {
 
   getSongs= (request: string) => {
 
-		return this.http.post('/api/beets/songs', {beetsfilter:request}, this.httpOptions )
+		return this.http.post<SongsResponse>('/api/beets/songs', {beetsfilter:request}, this.httpOptions )
 	}
 
 	getAlbumArtists= (): PromiseLike<AlbumArtistsResponse>  => {

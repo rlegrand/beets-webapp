@@ -6,8 +6,9 @@ import { Observable } from 'rxjs';
 import {SongsResponse} from './model/songs-response';
 import {AlbumArtistsResponse, AlbumArtist, AlbumsResponse} from './model/albums-response';
 
-import {BeetApi} from './apis.service';
-import {Utils} from './utils.service';
+import {BeetApi} from './services/apis.service';
+import {Utils} from './services/utils.service';
+import { DisplaySongsHelper } from './services/displaySongsHelper.service';
 
 @Component({
   selector: 'artists', 
@@ -20,11 +21,10 @@ export class ArtistsComponent implements OnInit {
     // Albums Artits to display (by date)
     albumsArtists: AlbumArtist[]= [];
 
-    constructor(private beetApi: BeetApi, public utils: Utils){}
+    constructor(private beetApi: BeetApi, private dsh: DisplaySongsHelper, public utils: Utils){}
 
     ngOnInit(){
       this.getAlbumsArtists();
-      // this.getImage("The Firm").subscribe( (imageUri: string) => console.log(imageUri) ;
     }
 
     getAlbumsArtists= () => {
@@ -34,6 +34,9 @@ export class ArtistsComponent implements OnInit {
           console.log('fy');
         } );
     }
+
+    // field is the beet field request to use (artist/album/albumartist...)
+    search= (field: string, name: string) => this.dsh.getAndDisplaySongs( `${field}:${name}` )
 
     
 }

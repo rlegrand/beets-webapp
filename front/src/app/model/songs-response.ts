@@ -7,5 +7,5 @@ export interface Song{
 }
 
 export interface SongsResponse{
-	songs: string[]
+	songs: Song[]
 }

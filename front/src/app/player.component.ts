@@ -16,7 +16,7 @@ export class Player{
 
 
 	set playlist(pl: Song[]){
-		console.log(pl);
+		//console.log(pl);
 		this._playlist= pl;
 	}
 

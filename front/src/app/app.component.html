@@ -4,7 +4,7 @@
     <img src="/assets/headphones.svg" width="40px" />
     Beets Webapp
   </h1>
-  <form class="requestForm" (submit)="getSongs()" #documentEditForm="ngForm" >
+  <form class="requestForm" (submit)="search()" #documentEditForm="ngForm" >
     <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
     <input type="submit" title="search" value="" >
   </form>
@@ -62,4 +62,3 @@
 
 
 
-<custom-player [playlist]="songsResponse.songs" ></custom-player>

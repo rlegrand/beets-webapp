@@ -11,13 +11,15 @@ import { AlbumsComponent }  from './albums.component';
 import { ArtistsComponent }  from './artists.component';
 import { Player } from './player.component';
 
-import {BeetApi} from './apis.service';
-import {Utils} from './utils.service';
+import {BeetApi} from './services/apis.service';
+import {Utils} from './services/utils.service';
+import {DisplaySongsHelper} from './services/displaySongsHelper.service';
+import { OngoingMusicComponent } from './ongoing-music.component';
 
 @NgModule({
   imports:      [ BrowserModule, HttpClientModule, FormsModule, AppRoutingModule ],
-  declarations: [ AppComponent, AlbumsComponent, ArtistsComponent, Player ],
-  providers: [BeetApi, Utils],
+  declarations: [ AppComponent, AlbumsComponent, ArtistsComponent, OngoingMusicComponent, Player ],
+  providers: [BeetApi, Utils, DisplaySongsHelper],
   bootstrap:    [ AppComponent ]
 
 })
