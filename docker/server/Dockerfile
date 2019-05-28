@@ -1,11 +1,10 @@
-FROM node:8.11.3-jessie
+#FROM hypriot/rpi-node
+FROM node:8-jessie
 
 MAINTAINER legrand.regis@gmail.com
 
 ENV dockerfile_parent_path /docker/server/
 
-# --- fix this debian apt version :(
-RUN printf "deb http://archive.debian.org/debian/ jessie main\ndeb-src http://archive.debian.org/debian/ jessie main\ndeb http://security.debian.org jessie/updates main\ndeb-src http://security.debian.org jessie/updates main" > /etc/apt/sources.list
 
 # --- add beets conf
 

@@ -17,6 +17,14 @@ var _beets = require("./beets");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -106,30 +114,34 @@ var ArtistMetadata = function ArtistMetadata() {
   });
 
   _defineProperty(this, "ignoreFromDiscogs", function () {
-    return function (imageObs) {
-      var contains = function contains(image) {
-        return (0, _rxjs.from)([/spacer.gif$/]).pipe((0, _operators.count)(function (ignoredImage) {
-          return image.match(ignoredImage);
-        }), (0, _operators.map)(function (nbImgs) {
-          return nbImgs > 0;
-        }));
-      };
-
-      return [(0, _operators.flatMap)(function (image) {
-        return (0, _rxjs.zip)((0, _rxjs.of)(image), contains(image));
-      }), (0, _operators.flatMap)(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            image = _ref2[0],
-            ignoreImage = _ref2[1];
-
-        return (0, _rxjs.iif)(function () {
-          return ignoreImage;
-        }, _rxjs.empty, (0, _rxjs.of)(image));
-      })];
+    var contains = function contains(image) {
+      return (0, _rxjs.from)([/spacer.gif$/]).pipe((0, _operators.count)(function (ignoredImage) {
+        return image.match(ignoredImage);
+      }), (0, _operators.map)(function (nbImgs) {
+        return nbImgs > 0;
+      }), (0, _operators.tap)(function (doesContain) {
+        return console.log("ignore ".concat(image, " ? ").concat(doesContain));
+      }));
     };
+
+    return [(0, _operators.tap)(function (image) {
+      return console.log("should check ".concat(image));
+    }), (0, _operators.flatMap)(function (image) {
+      return (0, _rxjs.zip)((0, _rxjs.of)(image), contains(image));
+    }), (0, _operators.flatMap)(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          image = _ref2[0],
+          ignoreImage = _ref2[1];
+
+      return (0, _rxjs.iif)(function () {
+        return ignoreImage;
+      }, (0, _rxjs.empty)(), (0, _rxjs.of)(image));
+    })];
   });
 
   _defineProperty(this, "getFromDiscogs", function (artistName) {
+    var _this$http_get;
+
     var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
     var searchUri = "https://api.discogs.com/database/search?q=".concat(artistName, "&?type=artist&?artist=").concat(artistName);
     var conf = {
@@ -138,24 +150,19 @@ var ArtistMetadata = function ArtistMetadata() {
         'Authorization': 'Discogs token=xIFztFffPlHucUCxpNSybLPOmxnpEOBNQCfqWsdi'
       }
     };
-
-    var ignoreFromDiscogsRes = _this.ignoreFromDiscogs();
-
-    console.log(ignoreFromDiscogsRes);
-    return _this.http_get(searchUri, conf, delay).pipe( // restrieving results field
+    return (_this$http_get = _this.http_get(searchUri, conf, delay)).pipe.apply(_this$http_get, [// restrieving results field
     (0, _operators.flatMap)(function (response) {
       return (0, _rxjs.from)(response.results);
     }), // take first result
     (0, _operators.first)(), // retrieve cover_image of the result
     (0, _operators.map)(function (result) {
       return result.cover_image;
-    }), // replace current image by empty if it's part of images to ignore
-    ignoreFromDiscogsRes[0], ignoreFromDiscogsRes[1], // default url if no result,
+    })].concat(_toConsumableArray(_this.ignoreFromDiscogs()), [// default url if no result,
     (0, _operators.defaultIfEmpty)(""), // do some logs
     (0, _operators.tap)(function (url) {
       if (url == "") throw "Image not found on discogs for ".concat(artistName);
       console.log("Image found for ".concat(artistName, ": ").concat(url));
-    }), _this.errorImage());
+    }), _this.errorImage()]));
   });
 
   _defineProperty(this, "getFromMsuicbrainz", function (artistName) {
