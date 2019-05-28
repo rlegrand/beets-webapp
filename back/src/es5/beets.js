@@ -5,6 +5,24 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.BeetsHelper = void 0;
 
+var _path = _interopRequireDefault(require("path"));
+
+var _child_process = require("child_process");
+
+var _jsYaml = _interopRequireDefault(require("js-yaml"));
+
+var _fs = _interopRequireDefault(require("fs"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -17,11 +35,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var path = require('path'),
-    fs = require('fs'),
-    spawn = require('child_process').spawn,
-    yaml = require('js-yaml');
-
 var BeetsHelper = function BeetsHelper() {
   var _this = this;
 
@@ -29,9 +42,9 @@ var BeetsHelper = function BeetsHelper() {
 
   _defineProperty(this, "beetRequest", function (args) {
     return new Promise(function (resolve, reject) {
-      var updatedArgs = ['-c', _this.getBeetsConfigPath()].concat(_toConsumableArray(args));
+      var updatedArgs = ['-c', _this.beetsConfPath].concat(_toConsumableArray(args));
       console.log("Beets args: ".concat(updatedArgs.join(' ')));
-      var beet = spawn('beet', updatedArgs, {
+      var beet = (0, _child_process.spawn)('beet', updatedArgs, {
         shell: true
       });
       var res = '';
@@ -127,21 +140,36 @@ var BeetsHelper = function BeetsHelper() {
     });
   });
 
-  _defineProperty(this, "getBeetsConfigPath", function () {
-    if (!_this.beetsConfPath) {
-      _this.beetsConfPath = '/app/beets/config/config.yaml';
-    }
-
-    return _this.beetsConfPath;
-  });
-
   _defineProperty(this, "getBeetsConfig", function () {
-    if (!_this.beetsConf) {
-      _this.beetsConf = yaml.safeLoad(fs.readFileSync(_this.getBeetsConfigPath(), 'utf8'));
-    }
-
     return _this.beetsConf;
   });
+
+  _defineProperty(this, "getLastModificationDate", function () {
+    return new Promise(function (resolve, reject) {
+      return _fs.default.stat(_this.beetsConfPath, function (err, resp) {
+        if (err) reject(err);
+        resolve(resp.mtimt);
+      });
+    });
+  });
+
+  _defineProperty(this, "rememberDateConf", function () {
+    return _this.savedModificationDate = _this.getLastModificationDate();
+  });
+
+  _defineProperty(this, "confChanged", function () {
+    return Promise.all([_this.getLastModificationDate(), _this.savedModificationDate]).then(function (_ref) {
+      var _ref2 = _slicedToArray(_ref, 2),
+          lastModif = _ref2[0],
+          savedModif = _ref2[1];
+
+      return lastModif > savedModif;
+    });
+  });
+
+  this.beetsConfPath = '/app/beets/config/config.yaml';
+  this.beetsConf = _jsYaml.default.safeLoad(_fs.default.readFileSync(this.beetsConfPath, 'utf8'));
+  this.rememberDateConf();
 };
 
 exports.BeetsHelper = BeetsHelper;

@@ -1,18 +1,23 @@
 'use strict';
 
-let path= require('path'),
-  fs= require('fs'),
-  spawn= require('child_process').spawn,
-  yaml= require('js-yaml');
-
+import path from 'path';
+import { spawn } from 'child_process';
+import yaml from 'js-yaml';
+import fs from 'fs';
 
 export class BeetsHelper{
 
+  constructor(){
+    this.beetsConfPath= '/app/beets/config/config.yaml';
+    this.beetsConf = yaml.safeLoad(fs.readFileSync(this.beetsConfPath, 'utf8'));
+    this.rememberDateConf();
+  }
+  
   beetRequest = (args) => {
 
     return new Promise( (resolve, reject) => {
 
-        let updatedArgs= ['-c', this.getBeetsConfigPath(), ...args];
+        let updatedArgs= ['-c', this.beetsConfPath, ...args];
 
         console.log( `Beets args: ${ updatedArgs.join(' ')}` );
 
@@ -134,24 +139,11 @@ export class BeetsHelper{
 
   }
 
+  getBeetsConfig= () => this.beetsConf
 
-  getBeetsConfigPath= () => {
-    if (!this.beetsConfPath){
-      this.beetsConfPath= '/app/beets/config/config.yaml';
-    }
-
-    return this.beetsConfPath;
-  }
-
-
-  getBeetsConfig= () => {
-    if (!this.beetsConf){
-      this.beetsConf= yaml.safeLoad(fs.readFileSync(this.getBeetsConfigPath(), 'utf8'));
-    }
-
-    return this.beetsConf;
-  }
-
+  getLastModificationDate= () => new Promise( (resolve, reject) =>  fs.stat( this.beetsConfPath, (err,resp) => { if (err) reject(err); resolve(resp.mtimt); } ) )
+  rememberDateConf= () => this.savedModificationDate= this.getLastModificationDate()
+  confChanged= () => Promise.all( [ this.getLastModificationDate(), this.savedModificationDate ] ).then( ([lastModif,savedModif]) => lastModif > savedModif )
 
 
 }

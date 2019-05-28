@@ -87,7 +87,13 @@ var StandaloneServer = function StandaloneServer(configServerCallbak) {
 
     var beetsConf = _this.beetsHelper.getBeetsConfig();
 
-    appServer.use(_express.default.static(beetsConf.directory));
+    var logError = function logError(err, req, res, next) {
+      console.error('error received');
+      console.error(err);
+      next(err);
+    };
+
+    appServer.use(_express.default.static(beetsConf.directory)).use(logError);
 
     _this.buildBeetsApi(appServer);
 

@@ -6,6 +6,7 @@ services:
       - ../back:/app/back
       - ../front/dist:/app/front
       - ../ignore/dbdata:/app/data
+    entrypoint: ["npm", "run", "dev", "--"]
     command: ${ACTION}
   ng:
     build: ../docker/dev/ngcli/

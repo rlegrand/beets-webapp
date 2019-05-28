@@ -6,6 +6,7 @@
     "email": "legrand.regis@gmail.com"
   },
   "scripts": {
+    "dev": "nodemon --watch src/es6 --exec babel-node --presets=@babel/env --plugins=@babel/plugin-proposal-class-properties,@babel/plugin-proposal-export-default-from src/es6/beetswebapp",
     "build": "babel src/es6/ --out-dir=src/es5/ --presets=@babel/env --plugins=@babel/plugin-proposal-class-properties,@babel/plugin-proposal-export-default-from",
     "app": "node src/es5/beetswebapp"
   },
@@ -18,7 +19,9 @@
     "body-parser": "1.18.3",
     "js-yaml": "3.12.0",
     "minimist": "1.2.0",
+    "nodemon": "1.19.1",
     "@babel/cli": "7.2.3",
+    "@babel/node": "7.4.5",
     "@babel/core": "7.3.4",
     "@babel/preset-env": "7.3.4",
     "@babel/plugin-proposal-class-properties": "7.3.4",

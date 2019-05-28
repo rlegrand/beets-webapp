@@ -105,6 +105,30 @@ var ArtistMetadata = function ArtistMetadata() {
     });
   });
 
+  _defineProperty(this, "ignoreFromDiscogs", function () {
+    return function (imageObs) {
+      var contains = function contains(image) {
+        return (0, _rxjs.from)([/spacer.gif$/]).pipe((0, _operators.count)(function (ignoredImage) {
+          return image.match(ignoredImage);
+        }), (0, _operators.map)(function (nbImgs) {
+          return nbImgs > 0;
+        }));
+      };
+
+      return [(0, _operators.flatMap)(function (image) {
+        return (0, _rxjs.zip)((0, _rxjs.of)(image), contains(image));
+      }), (0, _operators.flatMap)(function (_ref) {
+        var _ref2 = _slicedToArray(_ref, 2),
+            image = _ref2[0],
+            ignoreImage = _ref2[1];
+
+        return (0, _rxjs.iif)(function () {
+          return ignoreImage;
+        }, _rxjs.empty, (0, _rxjs.of)(image));
+      })];
+    };
+  });
+
   _defineProperty(this, "getFromDiscogs", function (artistName) {
     var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
     var searchUri = "https://api.discogs.com/database/search?q=".concat(artistName, "&?type=artist&?artist=").concat(artistName);
@@ -114,6 +138,10 @@ var ArtistMetadata = function ArtistMetadata() {
         'Authorization': 'Discogs token=xIFztFffPlHucUCxpNSybLPOmxnpEOBNQCfqWsdi'
       }
     };
+
+    var ignoreFromDiscogsRes = _this.ignoreFromDiscogs();
+
+    console.log(ignoreFromDiscogsRes);
     return _this.http_get(searchUri, conf, delay).pipe( // restrieving results field
     (0, _operators.flatMap)(function (response) {
       return (0, _rxjs.from)(response.results);
@@ -121,7 +149,8 @@ var ArtistMetadata = function ArtistMetadata() {
     (0, _operators.first)(), // retrieve cover_image of the result
     (0, _operators.map)(function (result) {
       return result.cover_image;
-    }), // default url if no result,
+    }), // replace current image by empty if it's part of images to ignore
+    ignoreFromDiscogsRes[0], ignoreFromDiscogsRes[1], // default url if no result,
     (0, _operators.defaultIfEmpty)(""), // do some logs
     (0, _operators.tap)(function (url) {
       if (url == "") throw "Image not found on discogs for ".concat(artistName);
@@ -237,6 +266,7 @@ var ArtistMetadata = function ArtistMetadata() {
       }
 
       console.log("Untrapped error");
+      console.log(err);
       throw err;
     }), (0, _operators.tap)(function (data) {
       if (data.needToStore) _this.storeToDb(artistName, data.url);
@@ -274,19 +304,19 @@ var ArtistMetadata = function ArtistMetadata() {
       return artist.trim().length > 0;
     }), (0, _operators.takeUntil)(triggEndStream), (0, _operators.map)(function (artist, index) {
       return [artist, index];
-    }), (0, _operators.tap)(function (_ref) {
-      var _ref2 = _slicedToArray(_ref, 2),
-          artist = _ref2[0],
-          index = _ref2[1];
+    }), (0, _operators.tap)(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2),
+          artist = _ref4[0],
+          index = _ref4[1];
 
       if (maxartists != -1 && index >= maxartists) {
         triggEndStream.next(0);
         triggEndStream.complete();
       }
-    }), (0, _operators.map)(function (_ref3) {
-      var _ref4 = _slicedToArray(_ref3, 2),
-          artist = _ref4[0],
-          index = _ref4[1];
+    }), (0, _operators.map)(function (_ref5) {
+      var _ref6 = _slicedToArray(_ref5, 2),
+          artist = _ref6[0],
+          index = _ref6[1];
 
       return artist;
     }));

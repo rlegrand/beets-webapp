@@ -41,7 +41,8 @@ var DbHelper = function DbHelper() {
     });
   });
 
-  this.db = new _sqlite.default.Database('/app/data/bw.db');
+  this.dbPath = '/app/data/bw.db';
+  this.db = new _sqlite.default.Database(this.dbPath);
 };
 
 var dbHelper = new DbHelper();

@@ -97,13 +97,13 @@ export class StandaloneServer{
         const beetsConf= this.beetsHelper.getBeetsConfig();
         const logError= (err, req, res, next) => {
           console.error('error received');
-          console.error(err.stack);
+          console.error(err);
           next(err);
         }
 
         appServer
         .use(express.static(beetsConf.directory))
-        .use(logErrors);
+        .use(logError);
 
         this.buildBeetsApi(appServer);
 

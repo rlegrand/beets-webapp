@@ -6,7 +6,8 @@ import sqlite from 'sqlite3';
 class DbHelper{
 
   constructor(){
-	this.db = new sqlite.Database('/app/data/bw.db');
+    this.dbPath= '/app/data/bw.db';
+    this.db = new sqlite.Database( this.dbPath );
   }
 
   init= () => {
@@ -34,8 +35,8 @@ class DbHelper{
           if (row) resolve(row.url);
           else resolve();
          })
-	)
-
+  )
+  
 }
 
 const dbHelper= new DbHelper();
