@@ -1,4 +1,4 @@
-FROM node:8.11.3-jessie
+FROM node:10-jessie
 MAINTAINER legrand.regis@gmail.com
 
 RUN npm install -g @angular/cli
