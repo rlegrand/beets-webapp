@@ -10,7 +10,7 @@ services:
       - ../front:/app/
   # node/npm executables
   node:
-    image: node:8.11.3-jessie
+    image: node:10-jessie
     user: node
     working_dir: /home/node/app/front
     volumes:

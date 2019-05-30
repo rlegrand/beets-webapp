@@ -77,7 +77,7 @@ function deploy(){
 }
 
 # Check building specific arch or both
-( [ "$ARCH" = "arm" ] || [ -z "$ARCH" ] ) && build "FROM hypriot\/rpi-node" "arm" && deploy "arm"
+( [ "$ARCH" = "arm" ] || [ -z "$ARCH" ] ) && build "FROM hypriot\/rpi-node:8" "arm" && deploy "arm"
 ( [ "$ARCH" = "x86" ] || [ -z "$ARCH" ] ) && build "FROM node:8-jessie" "x86" && deploy "x86"
 
 
