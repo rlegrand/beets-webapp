@@ -28,6 +28,9 @@ COPY front/dist/ front/
 
 WORKDIR back/
 
+# rebuild back dependencies with current node version
+RUN npm rebuild
+
 ENTRYPOINT ["npm", "run", "app", "--"]
 CMD ["server"]
 
