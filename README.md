@@ -32,7 +32,7 @@ Where:
 
 Create an allias which fits your needs
 
-    alias bwa="docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> -v bwa_sql_volume:/app/data/ -it rlegrand/beets-webapp-arm"
+    alias bwa="docker run --rm -d -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> -v bwa_sql_volume:/app/data/ -it rlegrand/beets-webapp-arm"
 
 Generate metadata: Artists/Albums images will be retrieved in the webapp, but is a slow operation, so it's suggested to do it once before launching the server the first time
 
