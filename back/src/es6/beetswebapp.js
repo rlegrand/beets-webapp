@@ -21,7 +21,8 @@ switch (action){
     break;
   case 'genmetadata':
     const artistmeta= new ArtistMetadata();
-    artistmeta.store().subscribe( () => console.log(`metadata generation complete`  )  );
+    //artistmeta.store().subscribe( () => console.log(`metadata generation complete`  )  );
+    artistmeta.store( 10, 5, 200 ).subscribe( () => console.log(`metadata generation complete`  )  );
     break;
 }
 

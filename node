@@ -1,0 +1,12 @@
+#!  /bin/bash
+
+set -e
+
+: ${ARCH:="x86"}
+
+export ARCH="-${ARCH}"
+export ACTION="node"
+
+docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml run  --entrypoint "" server ${ACTION}
+
+#EOF

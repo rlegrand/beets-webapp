@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import { pipe, Subject } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { AlbumArtistsResponse, AlbumsResponse } from '../model/albums-response';
+import { ArtistsResponse, AlbumsResponse } from '../model/albums-response';
 import { BeetApi } from './apis.service';
 import { Utils } from './utils.service';
 import { SongsResponse, Song } from '../model/songs-response';

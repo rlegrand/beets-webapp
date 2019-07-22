@@ -1,19 +1,19 @@
 
 <ul class="articleList">
-  <li *ngFor="let albumartist of albumsArtists">
-    <article (click)="search(albumartist.field, albumartist.name)"  >
-      <header> {{ albumartist.name }} </header>
+  <li *ngFor="let artist of artists">
+    <article (click)="search(artist.mainField, artist.name)"  >
+      <header> {{ artist.name }} </header>
       <div class="imgTopContainer">
         <div class="dummy"></div>
         <div class="imgLowContainer">
           <div class="imgContainer">
-            <img alt="Image not found" [src]="albumartist.url" />
+            <img alt="Image not found" [src]="artist.url" />
           </div>
         </div>
       </div>
 			<footer>
 				<p>Added on
-				<time [dateTime]="utils.getFormatedDate(albumartist.addedDate)"> {{ albumartist.addedDate.toDateString() }} </time>
+				<time [dateTime]="utils.getFormatedDate(artist.addedDate)"> {{ artist.addedDate.toDateString() }} </time>
 				</p>
 			</footer>
     </article>

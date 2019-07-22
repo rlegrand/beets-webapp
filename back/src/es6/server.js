@@ -7,6 +7,8 @@ import { BeetsHelper } from './beets';
 import dbHelper from './db';
 import { ArtistMetadata } from './metadata';
 
+import { zip, from, of } from 'rxjs';
+import { map, mergeMap, take, tap, toArray } from 'rxjs/operators';
 
 
 let defaultConfigCallback= function(appServer){
@@ -44,28 +46,29 @@ export class StandaloneServer{
         });
 
 
-        appServer.post('/api/beets/albumartists', (req, res) => {
+        appServer.post('/api/beets/artists', (req, res) => {
 
           console.log(`Retrieving all album artists`);
-          
-            this.beetsHelper.beetsAlbumArists()
-            .then( (albumsArtists) => {
-              return Promise.all( albumsArtists.map( (aa) =>
-                this.artistMetaHelper.getArtistImageOnly(aa.name).toPromise()
-                .then( (url) => {
-                  aa.url= url;
-                  aa.field= 'albumartist';
-                  return aa;
-                })
-              ) );
-            })
-            .then( (albumArtists) => {
-                res.send({data: albumArtists});
-            })
-            .catch( (err) => {
-                console.error(err);
-                res.send(err);
-            });     
+
+          const artistsObs= from( this.beetsHelper.beetsMixedArtists() )
+          .pipe(
+              mergeMap((artists) => from(artists)),
+//              tap( (artist) => console.log(`Treating artist ${artist.name}`) ),
+              mergeMap((artist) => zip( of(artist), this.artistMetaHelper.getArtistImageOnly(artist.name))),
+              map( ([artist,url]) => {
+                  artist.url= url; 
+                  return artist;
+                } ),
+//              tap( (artist) => console.log(`data for artist: ${artist}`)),
+              toArray()
+          ).toPromise()
+          .then((artists) => {
+            res.send({ data: artists });
+          })
+          .catch((err) => {
+              console.error(err);
+              res.send(err);
+          });
 
         });
 

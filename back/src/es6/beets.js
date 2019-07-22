@@ -4,10 +4,21 @@ import path from 'path';
 import { spawn } from 'child_process';
 import yaml from 'js-yaml';
 import fs from 'fs';
+import { from, zip } from 'rxjs';
+import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first } from 'rxjs/operators';
+
+import myutils from './utils.js';
 
 export class BeetsHelper{
 
   constructor(){
+    this.init.bind(this);
+    this.init();
+  }
+
+  // Init convention
+  // classic function so it can be mocked
+  init(){
     this.beetsConfPath= '/app/beets/config/config.yaml';
     this.beetsConf = yaml.safeLoad(fs.readFileSync(this.beetsConfPath, 'utf8'));
     this.rememberDateConf();
@@ -44,80 +55,79 @@ export class BeetsHelper{
 
   }
 
+  // Map the array of elements strings provided to an array of unique elements objects
+  // parseDelimString(["a#b#c"],["a#b#d"] '#', ['first','second','third'], 'first') -> [{first:'a', second:'b', third:'c'}]
+  parseDelimString= (toParse, delim, mapFields, unicityField) => 
+    from( toParse )
+    .pipe(
+      mergeMap( (singleElt) => 
+        from(singleElt.split(delim))
+        .pipe(
+          map( (subElt) => subElt.trim() ),
+          reduce( (acc,current,index) => { acc[ (mapFields[index]) ] = current; return acc; },  {}  )
+        )
+      ),
+      groupBy( (singleElt) => singleElt[unicityField] ),
+      mergeMap( (group) =>  group.pipe( first() ) ),
+      toArray()
+    ).toPromise()
 
+  // Map the array of songs strings provided to an array of unique songs objects
+  parseSongsString = (songsString, delim) => this.parseDelimString(songsString, delim,['path','artist','album','title'], 'path' );
+
+ 
+  // Map the array of artists strings provided to an array of unique artists objects
+  getArtistsFromString = (artistsString, delim, mainField) =>  
+    from( this.parseDelimString(artistsString, delim, ['name','addedDate','fields'], 'name' ) )
+    .pipe( 
+      mergeMap( (artistsArray) => from(artistsArray)  ),
+      map( (artist) =>  { 
+        artist.fields=[artist.fields]; 
+        artist.mainField= mainField; 
+        artist.addedDate= myutils.getDate(artist.addedDate);
+        return artist; } ), 
+      toArray() )
+    .toPromise();
+    
   beetsSongsRequest= (filter) => {
-
-    let delim= '<#>',
-      args= ['ls', '-f', `'$path ${delim} $artist ${delim} $album ${delim} $title'`, filter];
-
-    return this.beetRequest(args)
-      .then( (data) => {
-
-        return data.map( (elt, idx) => {
-
-          let delimedElt= elt.split(delim)
-            .map( (elt, idx) => elt.trim() );
-
-          let res=  {
-            path: delimedElt[0].substring( this.getBeetsConfig().directory.length ),
-            artist: delimedElt[1],
-            album: delimedElt[2],
-            title: delimedElt[3]
-          }
-          // console.log('data returned:');
-          // console.log(res);
-          return res;
-        });
-
-      } );
-
-  }
-
-  beetsAlbumArists= () => {
     let delim= '<#>';
 
-    let artists= [];
-
-    return this.beetRequest(['ls', '-a', 'added-', '-f', `'$albumartist ${delim} $added'`])
-      .then( (data) => {
-        return data.map( (elt, idx) => {
-
-          let delimedElt= elt.split(delim)
-            .map( (elt, idx) => elt.trim() );
-
-          return {
-            name: delimedElt[0],
-            addedDate: delimedElt[1]
-          }
-
-        })
-          .filter( (elt, idx) => {
-            const keep= ( artists.indexOf(elt.name) == -1 );
-            if (keep){
-              artists.push(elt.name);
-              return true;
-            }
-            return false;
-          } )
-      } );
-
+    return this.beetRequest(['ls', '-f', `'$path${delim}$artist${delim}$album${delim}$title'`, filter])
+      .then( (songs) => this.parseSongsString(songs,delim) );
   }
 
 
-  beetsArists= () => {
+  beetsAlbumArtists= () => {
+    let delim= '<#>';
 
-    return this.beetRequest(['ls', '-af', "'$albumartist'"])
-      .then( (data) => {
-        return data.sort( (w1, w2) => {
-          let w1l= w1.toLowerCase();
-          let w2l= w2.toLowerCase();
-          if (w1l < w2l) return -1;
-          if (w1l > w2l) return 1;
-          return 0;
-        } )
-          .filter( (elt, idx, self) => idx == self.indexOf(elt) );
-      } );
+    return this.beetRequest(['ls', '-a', 'added-', '-f', `'$albumartist${delim}$added${delim}albumartist'`])
+      .then( (albumartist) => this.getArtistsFromString(albumartist,delim, 'albumartist') );
+  }
 
+
+  beetsArtists= () => {
+    let delim= '<#>';
+
+    return this.beetRequest(['ls', 'added-', "-f", `'$artist${delim}$added${delim}artist'`])
+      .then( (artist) => this.getArtistsFromString(artist,delim, 'artist') );
+  }
+
+  beetsMixedArtists= () => {
+
+    return zip( from( this.beetsAlbumArtists() ), from( this.beetsArtists() ) ) 
+    .pipe( 
+      mergeMap( ([albumsArtists, artists]) => albumsArtists.concat(artists) ),
+      groupBy( artist => artist.name ),
+      mergeMap( (group) => 
+        group
+        .pipe(
+          reduce((accumulated, current) => { current.fields= [...accumulated.fields, ...current.fields]; return current;  }, {fields:[]} )
+        )
+      ),
+      toArray(),
+      map( (arr) => arr.sort( (a1,a2) => ( {true: -1, false: 1}[a1.name < a2.name] ) ) )
+      )
+      .toPromise();
   }
 
 

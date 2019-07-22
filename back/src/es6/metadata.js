@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Observable, Subject, pipe, from, of, timer, iif, zip, empty } from 'rxjs';
-import {  tap, take, takeUntil, map, mergeScan, count, concat, delay, delayWhen,  defaultIfEmpty, distinctUntilChanged, toArray, flatMap, filter, first, catchError, subscribe } from 'rxjs/operators';
+import {  tap, take, takeUntil, map, mergeScan, count, concat, delay, delayWhen,  defaultIfEmpty, distinctUntilChanged, toArray, flatMap, filter, first, catchError, subscribe, mergeMap } from 'rxjs/operators';
 
 import dbHelper from './db';
 import { BeetsHelper } from './beets';
@@ -50,9 +50,9 @@ export class ArtistMetadata{
   http_get= (url, conf={}, wait= 1000) => 
     of(1)
       .pipe(
-        this.log(`request starting: ${url}`),
+        //this.log(`request starting: ${url}`),
         flatMap( (_) => from(axios.get(url, conf) ) ),
-        this.log(`request complete: ${url}`),
+        //this.log(`request complete: ${url}`),
         map( (response) => ({responseData: response.data, wait:Math.max(0, wait - response.duration) }) ),
         delayWhen( (data) => timer( data.wait ) ),
         map( (data) => data.responseData )
@@ -76,8 +76,9 @@ export class ArtistMetadata{
   // default image when image not found
   errorImage= () => 
     catchError( ( err ) => {
+      //console.error( err );
       if (err.response && (err.response.status == 503 || err.response.status == 429 )) throw quotaExceeded;
-      console.error( `An unexpected error occured` );
+      console.error( `An unexpected error occured, relpacing by notFound url` );
       return of(this.notFoundUrl);
     } )
 
@@ -89,11 +90,11 @@ export class ArtistMetadata{
         .pipe(
           count((ignoredImage) => image.match(ignoredImage)),
           map((nbImgs) => (nbImgs > 0)),
-          tap( (doesContain)  => console.log(`ignore ${image} ? ${doesContain}`) )
+          //tap( (doesContain)  => console.log(`ignore ${image} ? ${doesContain}`) )
         )
     
     return [
-      tap( (image) => console.log(`should check ${image}`) ),
+      //tap( (image) => console.log(`should check ${image}`) ),
       flatMap( (image) => zip( of(image), contains(image) ) ),
       flatMap(([image,ignoreImage]) => iif(() => ignoreImage, empty(), of(image)))
     ];
@@ -108,19 +109,19 @@ export class ArtistMetadata{
       .pipe(
         // restrieving results field
         flatMap( (response) => from(response.results) ),
+        // default url if no result,
+        defaultIfEmpty( "" ),
+        // do some logs
+        tap( (result) => {
+          if ( result == "" ) throw `Image not found on discogs for ${artistName}` ;
+        } ),        
         // take first result
         first(),
         // retrieve cover_image of the result
         map( (result) => result.cover_image ),
+        tap( (url) => console.log (`Image found for ${artistName}: ${url}`) ),
         // replace current image by empty if it's part of images to ignore
         ...this.ignoreFromDiscogs(),
-        // default url if no result,
-        defaultIfEmpty( "" ),
-        // do some logs
-        tap( (url) => {
-          if ( url == "" ) throw `Image not found on discogs for ${artistName}` ;
-          console.log (`Image found for ${artistName}: ${url}`);
-        } ),
         this.errorImage()
       );
   }
@@ -159,7 +160,7 @@ export class ArtistMetadata{
         // do some logs
         tap( (url) => {
           if ( url == "" ) throw `Image not found on musicbrainzfor ${artistName}` ;
-          console.log (`Image found for ${artistName}: ${url}`);
+          //console.log (`Image found for ${artistName}: ${url}`);
         } ),
         this.errorImage()
       );
@@ -187,7 +188,7 @@ export class ArtistMetadata{
           if ( err.name == artistNotStored.name ) return of({url:undefined, needToStore:true, rateExcceded: false});
           else throw err;
         }),
-        this.log(`looking fo ${artistName}`),
+        //this.log(`looking for ${artistName}`),
         flatMap( (data) => 
           // data comes from DB, keep data as it
           iif( () => !data.needToStore, 
@@ -206,6 +207,7 @@ export class ArtistMetadata{
         ),
         catchError( (err) => {
           if (err == quotaExceeded){
+            console.log('quota exceeded detected');
             return of( { url: undefined, needToStore: false, rateExcceded: true} );
           }
           console.log(`Untrapped error`);
@@ -222,18 +224,40 @@ export class ArtistMetadata{
   // Get a single image url
   getArtistImageOnly= (artistName,delay=0) =>
     this.getArtistImage(artistName, delay)
-    .pipe( map( (data) => data.url ) )
+    .pipe( 
+      map( (data) => data.url ),
+      tap( (url) => console.log(`Img for ${artistName}: ${url}` ) )
+    )
 
   // Get artists from beets, search their images and store them
   store= (unitDelay= 1000, parallelism= 1, maxartists= -1) => {
 	
     const triggEndStream = new Subject();
 
-    const albumArtists= from( this.beetsHelper.beetsAlbumArists() )
+    const allartists= from( this.beetsHelper.beetsMixedArtists() )
+      .pipe( 
+        mergeMap( (artists) => from(artists)),
+        map( (artist) => artist.name ),
+        takeUntil( triggEndStream ),
+        map( (artist,index) => [artist,index] ),
+        tap( ([artist,index]) => { 
+          if ( (maxartists != -1) &&  (index  >= maxartists) ){
+            triggEndStream.next(0);
+            triggEndStream.complete();
+          }
+        }),
+        map( ([artist,index]) => artist )
+      );
+      
+      /*  
       .pipe( 
         flatMap( (artistsArray) => from(artistsArray) ),
         map( (artistData) => artistData.name  ),
-        concat( from( this.beetsHelper.beetsArists() ).pipe( flatMap( (artistsArray) => from(artistsArray) ) ) ),
+        concat( 
+          from( this.beetsHelper.beetsArtists() )
+          .pipe( flatMap( (artistsArray) => from(artistsArray) ) ) 
+          .pipe( map( (artistsData) => artistData.name ) ) 
+        ),
         toArray(),
         flatMap( (allArtistsArray) => from(allArtistsArray.sort()) ),
         distinctUntilChanged(),
@@ -247,30 +271,45 @@ export class ArtistMetadata{
           }
         }),
         map( ([artist,index]) => artist )
-      );
-
-    const storeOne= (albumArtistsStream) => 
-      albumArtistsStream.pipe(
+      );*/
+    
+    let nbArtists= 0;
+    const storeOne= (artistsStream) => { 
+      return artistsStream.pipe(
+        tap( (_) => nbArtists++ ),
         mergeScan( (acc,current) => {
           const delay= acc.rateExcceded ? 2 * unitDelay : unitDelay;
           return this.getArtistImage(current, delay);
         }, { rateExcceded: false}, parallelism),
         filter( (data) => data.rateExcceded ),
         map( (data) => data.artist ) 
-      )
+      );
+    }
       
 
-    const storeRec= (albumArtistsStream) =>       
+    const storeRec= (artistsStream) =>       
       Observable.create( (observer) => 
-        storeOne( albumArtistsStream )
+        storeOne( artistsStream )
           .pipe( toArray() )
           .subscribe( (failedArtists) => {
-            if (failedArtists.length > 0) storeRec( of(failedArtists) ); 
-            else observer.complete();
+            const previousNbArtists= nbArtists;
+            const remainingNbArtists= failedArtists.length;
+            nbArtists= 0;
+            console.log( `Summary iteration: 
+            -> total artist tried: ${previousNbArtists} 
+            -> remaining artists: ${remainingNbArtists} 
+            `);
+            if ( remainingNbArtists == 0 ) observer.complete();
+            else storeRec( of(1).pipe( delay(10000), mergeMap( (_) => from(failedArtists) ) ) )
+            .subscribe( 
+              (_) => undefined, //next
+              (_) => undefined, //err
+              () => observer.complete()
+            );
           })
       );
 
-    return storeRec( albumArtists );
+    return storeRec( allartists );
   }
 
 }

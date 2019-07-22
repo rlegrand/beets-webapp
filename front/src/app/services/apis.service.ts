@@ -2,9 +2,9 @@ import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders }  from '@angular/common/http';
 
 import { Observable, pipe, from } from 'rxjs';
-import { map, flatMap, filter, first, catchError } from 'rxjs/operators';
+import { map, flatMap, filter, first, catchError, tap, toArray } from 'rxjs/operators';
 
-import {AlbumArtistsResponse, AlbumsResponse} from '../model/albums-response';
+import {ArtistsResponse, AlbumsResponse, ArtistRaw, Artist} from '../model/albums-response';
 import { SongsResponse } from '../model/songs-response';
 
 
@@ -25,13 +25,18 @@ export class BeetApi {
 		return this.http.post<SongsResponse>('/api/beets/songs', {beetsfilter:request}, this.httpOptions )
 	}
 
-	getAlbumArtists= (): PromiseLike<AlbumArtistsResponse>  => {
+	getAlbumArtists= (): PromiseLike<Artist[]>  => {
 
-      return this.http.post<AlbumArtistsResponse>('/api/beets/albumartists', {}, this.httpOptions )
-//      .pipe( map( (albumArtistsResponse: AlbumArtistsResponse) : AlbumArtistsResponse => {
-//        albumArtistsResponse.data= albumArtistsResponse.data.filter( (artist:any, index: number) => index == 0 );
-//        return albumArtistsResponse;
-//      } ) )
+      return this.http.post<ArtistsResponse>('/api/beets/artists', {}, this.httpOptions ) 
+      .pipe( 
+        flatMap( (response:ArtistsResponse): Observable<ArtistRaw> => from(response.data) ),
+        map( (albumartist:ArtistRaw):Artist => { 
+          const faa= <any> albumartist;
+          faa.addedDate= new Date(albumartist.addedDate); 
+          return <Artist> faa;  
+        } ),
+        toArray()
+       )
       .toPromise()
 	}
 
