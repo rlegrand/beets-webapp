@@ -12,9 +12,9 @@ The webapp will evolve from time to time, actually it allows to make your own be
 
 Edit the following in **docker-compose.yml** (read comments):
 * replace ${ARCH} by "x86" or "arm" depending on your machine architecture
-* <path to beets yaml config> 
-* <path to beets library file>
-* <path to the beets music folder>
+* \<path to beets yaml config\>
+* \<path to beets library file\>
+* \<path to the beets music folder\>
 
 ## Start
 
