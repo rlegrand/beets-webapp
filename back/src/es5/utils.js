@@ -12,6 +12,8 @@ exports.__RewireAPI__ = exports.default = void 0;
 
 var _winston = _interopRequireDefault(require("winston"));
 
+var _operators = require("rxjs/operators");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46,7 +48,7 @@ var Utils = function Utils() {
       args[_key - 2] = arguments[_key];
     }
 
-    if (_this2.isDev()) return _fn.call.apply(_fn, [_this].concat(args));else return identity();
+    if (_this2.isDev()) return _fn.call.apply(_fn, [_this].concat(args));else return _get__("identity")();
   });
 };
 
@@ -165,6 +167,9 @@ function _get_original__(variableName) {
   switch (variableName) {
     case "winston":
       return _winston.default;
+
+    case "identity":
+      return _operators.identity;
 
     case "Utils":
       return Utils;

@@ -1,7 +1,6 @@
 'use strict'
 
 import winston from 'winston';
-import {  identity } from 'rxjs/operators';
 
 class Utils{
     getDate = (dateStr) => {
@@ -26,7 +25,7 @@ class Utils{
 
     onDevRx = (_this, _fn, ...args) => {
         if (this.isDev()) return _fn.call(_this, ...args);
-        else return identity();
+        return tap( (_) => {} );
     }
 
 }
