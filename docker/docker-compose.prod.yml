@@ -7,11 +7,11 @@ services:
       - 80:80
     volumes:
       # the beets yaml config
-      - <path to beets yaml config>:/app/beets/config/config.yaml
+      - <path to beets yaml config>:<path to beets yaml config>
       # the path to the beets library file
       # - by default, it's on the same place than your config file and named library.db
       # - otherwise you modified it in your conf, so retrieve it by running "grep library /your/beets/config.yml"
-      - <path to beets library file>:/path/to/lib
+      - <path to beets library file>:<path to beets library file>
       # The path to the beets directory which contains your music
       # - by default, it's $HOME/Music
       # - otherwise you modified it in your conf, so retrieve it by running "grep directory /your/beets/config.yml"
@@ -21,7 +21,11 @@ services:
     image: redis
     command: "redis-server --appendonly yes"
     volumes:
-      - bwa_sql_volume:/dbdata:/data/
+      - bwa_sql_volume:/data/
+
+volumes:
+  bwa_sql_volume:
+    driver: local
 
     
     

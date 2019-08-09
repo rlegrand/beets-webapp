@@ -27,7 +27,7 @@ On first use only, Generate metadata and wait this complete ( Artists/Albums ima
 
 To start the server
 
-    docker-compose up
+    docker-compose up -d
 
 To stop the server
 

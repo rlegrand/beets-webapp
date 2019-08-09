@@ -1,6 +1,7 @@
 'use strict'
 
 import winston from 'winston';
+import {  identity } from 'rxjs/operators';
 
 class Utils{
     getDate = (dateStr) => {
