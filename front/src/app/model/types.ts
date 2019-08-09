@@ -4,3 +4,8 @@ export enum MainRoutes{
     artists = 'artists',
     ongoing = 'ongoing'
 }
+
+export enum MetadataType{
+    artist= 'artist',
+    album= 'album',
+}

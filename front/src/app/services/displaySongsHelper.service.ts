@@ -1,9 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnInit} from '@angular/core';
 
 import { pipe, Subject } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 
-import { ArtistsResponse, AlbumsResponse } from '../model/albums-response';
+import { MetadataResponse } from '../model/albums-response';
 import { BeetApi } from './apis.service';
 import { Utils } from './utils.service';
 import { SongsResponse, Song } from '../model/songs-response';
@@ -12,26 +12,52 @@ import { MainRoutes } from '../model/types';
 
 
 @Injectable()
-export class DisplaySongsHelper {
+export class DisplaySongsHelper implements OnInit{
+
+  static REQ_KEY='lastTextRequest' ;
 
   songs: Song[];
+  songsLoadedOrLoading: boolean= false;
 
   textRequest: Subject<string>= new Subject();
 
   constructor( private router: Router, private api: BeetApi, private utils: Utils){}
 
-  getAndDisplaySongs= (request: string ) => {
+  ngOnInit(){ }
+
+  // send an event to display request in input
+  // set request into local storage
+  shareTextRequest= (request: string) => {
     this.textRequest.next(request);
-    this.api.getSongs(request)
-    .subscribe( 
-      ( resp: SongsResponse ) => {
-        this.songs= resp.songs;
-        this.router.navigate( [MainRoutes.ongoing] );
-      },
-      ( err: any ) => { this.utils.displayError(err) },  
+    localStorage.setItem(DisplaySongsHelper.REQ_KEY, request);
+  }
+
+  loadSongs= (request: string) => {
+    this.songsLoadedOrLoading= true;
+    return this.api.getSongs(request)
+    .pipe(
+      tap((response: SongsResponse) => this.songs = response.songs)
+    );
+  }
+
+  loadFromLastRequest= () => {
+    const lastRequest = localStorage.getItem(DisplaySongsHelper.REQ_KEY);
+    if (lastRequest !== null){
+      this.loadSongs(lastRequest)
+      .subscribe( () => {} );
+    }
+  }
+
+
+  getAndDisplaySongs= (request: string ) => {
+    this.shareTextRequest(request)
+    this.loadSongs(request)
+      .subscribe(
+        (resp: SongsResponse) => this.router.navigate([MainRoutes.ongoing]),
+        (err: any) => this.utils.displayError(err)
       );
   }
-  
+
 
 
 }

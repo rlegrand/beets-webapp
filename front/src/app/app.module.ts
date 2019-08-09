@@ -7,8 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 //Components
 import { AppComponent }  from './app.component';
-import { AlbumsComponent }  from './albums.component';
-import { ArtistsComponent }  from './artists.component';
+import { MetadataComponent }  from './metadatas.component';
 import { Player } from './player.component';
 
 import {BeetApi} from './services/apis.service';
@@ -19,7 +18,7 @@ import { OngoingMusicComponent } from './ongoing-music.component';
 
 @NgModule({
   imports:      [ BrowserModule, HttpClientModule, FormsModule, AppRoutingModule ],
-  declarations: [ AppComponent, AlbumsComponent, ArtistsComponent, OngoingMusicComponent, Player ],
+  declarations: [ AppComponent, MetadataComponent, OngoingMusicComponent, Player ],
   providers: [BeetApi,Cache, Utils, DisplaySongsHelper],
   bootstrap:    [ AppComponent ]
 

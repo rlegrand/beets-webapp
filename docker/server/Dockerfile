@@ -1,4 +1,4 @@
-#FROM hypriot/rpi-node
+#FROM node:8-jessie
 FROM node:8-jessie
 
 MAINTAINER legrand.regis@gmail.com

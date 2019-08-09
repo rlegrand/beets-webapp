@@ -5,6 +5,7 @@
     Beets Webapp
   </h1>
   <form class="requestForm" (submit)="search()" #documentEditForm="ngForm" >
+    <button class="toggle" (click)="toggleMenu()"></button>
     <input placeholder="beets request" [(ngModel)]="textRequest" type="text" name="textRequest" id="textRequest">
     <input type="submit" title="search" value="" >
   </form>
@@ -14,9 +15,7 @@
 
 <aside>
 
-  <button class="toggle"></button>
-  <!-- use class "closed" on aside to hide text -->
-  <ul class="list-group" >
+  <ul class="list-group" [ngClass]="menuClasses" >
     <li class="list-group-item ">
       <nav class="album">
         <a
@@ -37,11 +36,13 @@
         </a>
       </nav>
     </li>
+    <!--
     <li class="list-group-item">
       <nav class="playlistbtn">
         playlists      
       </nav>
     </li>
+    -->
     <li class="list-group-item">
       <nav class="ongoing">
         <a

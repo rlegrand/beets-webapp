@@ -10,9 +10,7 @@ import { BeetsHelper } from '../src/es6/beets.js';
 import myutils from '../src/es6/utils.js';
 
 
-
 let beetsHelper;
-
 
 const mockBeetsHelper= () => {
     // disable fs/yaml
@@ -31,7 +29,7 @@ const mockBeetsHelper= () => {
     beetsHelper.confChanged= sinon.spy();
 
     // Invoke constructor like method
-    initFake.restore()
+    initFake.restore();
     beetsHelper.init();
 }
 
@@ -136,7 +134,31 @@ describe( "Beets", function(){
                 assert(res[0].fields.indexOf('albumartist') >= 0 );
             } );
 
-            
+    
+
+        });
+
+    
+    });
+    
+    describe("beetsAlbums", () => {
+
+        it("Check computed albums are correct: sorted", () => {
+            const albumRequestResponse = ['The Wall - Disc 1<#>2016-10-07 22:09:24<#>album', 'Animals<#>2016-10-07 22:06:59<#>album'];
+            const wantedResult = [
+                { name: 'Animals', addedDate: myutils.getDate('2016-10-07 22:06:59'), fields: ['album'], mainField: 'album' },
+                { name: 'The Wall - Disc 1', addedDate: myutils.getDate('2016-10-07 22:09:24'), fields:['album'], mainField: 'album' }
+            ];
+
+            sinon.stub(beetsHelper, 'beetRequest').resolves(albumRequestResponse);
+
+            return beetsHelper.beetsAlbums().then((res) => {
+                assert.deepEqual(res, wantedResult);
+            });
         });
     });
+
+
+
+
 });

@@ -6,7 +6,7 @@
     "email": "legrand.regis@gmail.com"
   },
   "scripts": {
-    "dev": "nodemon --watch src/es6 --exec babel-node --presets=@babel/env src/es6/beetswebapp",
+    "dev": "nodemon --watch src/es6 --exec 'babel-node src/es6/beetswebapp --inspect=0.0.0.0:9229'",
     "build": "babel src/es6/ --out-dir=src/es5/",
     "app": "node src/es5/beetswebapp",
     "test": "mocha --require @babel/register"
@@ -14,7 +14,8 @@
   "dependencies": {
     "axios": "0.18.0",
     "rxjs": "6.0.0",
-    "sqlite3": "4.0.6",
+    "redis": "2.8.0",
+    "winston": "3.2.1",
     "tree-kill": "1.2.0",
     "express": "3.0.1",
     "body-parser": "1.18.3",
@@ -28,6 +29,7 @@
     "@babel/preset-env": "7.3.4",
     "@babel/plugin-proposal-class-properties": "7.3.4",
     "@babel/plugin-proposal-export-default-from": "7.2.0",
+    "babel-plugin-rewire": "1.2.0",
     "mocha": "6.1.4",
     "sinon": "7.3.2"
   }

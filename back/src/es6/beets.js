@@ -8,6 +8,7 @@ import { from, zip } from 'rxjs';
 import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first } from 'rxjs/operators';
 
 import myutils from './utils.js';
+const logger= myutils.getLogger();
 
 export class BeetsHelper{
 
@@ -30,7 +31,7 @@ export class BeetsHelper{
 
         let updatedArgs= ['-c', this.beetsConfPath, ...args];
 
-        console.log( `Beets args: ${ updatedArgs.join(' ')}` );
+        logger.debug( `Beets args: ${ updatedArgs.join(' ')}` );
 
         let beet= spawn('beet', updatedArgs, {shell:true});
 
@@ -38,8 +39,6 @@ export class BeetsHelper{
 
         beet.stdout.on('data', (data) => {
           let dataStr= data.toString();
-          //console.log('data retrieved:');
-          //console.log(dataStr);
           res+= dataStr;
         });
 
@@ -67,6 +66,7 @@ export class BeetsHelper{
           reduce( (acc,current,index) => { acc[ (mapFields[index]) ] = current; return acc; },  {}  )
         )
       ),
+      filter( (singleElt) => singleElt[unicityField].trim().length > 0 ),
       groupBy( (singleElt) => singleElt[unicityField] ),
       mergeMap( (group) =>  group.pipe( first() ) ),
       toArray()
@@ -87,7 +87,21 @@ export class BeetsHelper{
         artist.addedDate= myutils.getDate(artist.addedDate);
         return artist; } ), 
       toArray() )
-    .toPromise();
+      .toPromise()
+ 
+  // Map the array of artists strings provided to an array of unique artists objects
+  getAlbumsFromString = (albumsString, delim, mainField) =>  
+    from( this.parseDelimString(albumsString, delim, ['name','addedDate','fields'], 'name' ) )
+    .pipe( 
+      mergeMap( (albumsArray) => from(albumsArray)  ),
+      map( (album) =>  { 
+        album.fields=[album.fields]; 
+        album.mainField= mainField; 
+        album.addedDate= myutils.getDate(album.addedDate);
+        return album; } ), 
+      toArray() )
+      .toPromise()
+    
     
   beetsSongsRequest= (filter) => {
     let delim= '<#>';
@@ -133,20 +147,11 @@ export class BeetsHelper{
 
   beetsAlbums= () => {
 
-    return this.beetRequest(['ls', '-af', "'$album'"])
-      .then( (data) => {
+    let delim= '<#>';
 
-        let res= data.sort( (w1, w2) => {
-          let w1l= w1.toLowerCase();
-          let w2l= w2.toLowerCase();
-          if (w1l < w2l) return -1;
-          if (w1l > w2l) return 1;
-          return 0;
-        } );
-
-        return res.map( (elt, idx) =>{ return {name: elt}; } );;
-      } );
-
+    return this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`])
+      .then( (albums) => this.getAlbumsFromString(albums, delim, 'album') )
+      .then( (albums) => albums.sort( (a1,a2) => ( {true: -1, false: 1}[a1.name < a2.name] ) ) );
   }
 
   getBeetsConfig= () => this.beetsConf

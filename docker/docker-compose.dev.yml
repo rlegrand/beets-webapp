@@ -5,9 +5,15 @@ services:
     volumes:
       - ../back:/app/back
       - ../front/dist:/app/front
-      - ../ignore/dbdata:/app/data
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 9229:9229
     entrypoint: ["npm", "run", "dev", "--"]
     command: ${ACTION}
+  redis:
+    volumes:
+      - ../ignore/dbdata:/data/
   ng:
     build: ../docker/dev/ngcli/
     volumes:

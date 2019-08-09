@@ -1,45 +1,46 @@
-import sqlite from 'sqlite3';
+import redis from 'redis';
+import utils from './utils';
+const logger= utils.getLogger();
 
 
+export default class DbHelper{
 
+  constructor(){ }
 
-class DbHelper{
-
-  constructor(){
-    this.dbPath= '/app/data/bw.db';
-    this.db = new sqlite.Database( this.dbPath );
+  init() {
+    this.client= redis.createClient({host:'redis'});
+    this.client.on( 'error', (e) => logger.error(e) );
+    return this;
   }
 
-  init= () => {
-	this.db.serialize( () => {
-	  this.db.run('CREATE TABLE IF NOT EXISTS artistsUrls (artist TEXT, url TEXT)');
-	} );
-  }
+  addUri= (hname, uri) =>
+    new Promise((resolve, reject) =>
+      this.client.hset(hname, 'url', uri, (err, res) => {
+        if (err) reject(err);
+        resolve(res);
+      }))
 
-  addArtistUrl= (artistName, artistUrl) => 
-	new Promise(  (resolve, reject) => 
-	  this.db.run('INSERT INTO artistsUrls values (?,?)', [artistName, artistUrl],
-        (err) => {
-          if (err) reject(err);
-          else resolve();
-        })
-    )
- 
+  addArtistUrl= (artistName, artistUrl) => this.addUri(`artist:${artistName}`, artistUrl)
+   
+  addAlbumUrl= (albumName, albumUrl) => this.addUri(`album:${albumName}`, albumUrl)
 
-  getArtistUrl= (artistName) => 
-	new Promise(  (resolve, reject) => 
-	  this.db.get(
-		'SELECT * from artistsUrls where artist = ?', [artistName],
-	  	(err, row) => {
-          if (err) reject(err);
-          if (row) resolve(row.url);
-          else resolve();
-         })
-  )
+  getUri= (hname) => 
+    new Promise((resolve, reject) => {
+      this.client.hget(hname, 'url', (err, res) => {
+        logger.debug(`${hname} url ? : ${res}`);
+        if (err) reject(err);
+        resolve(res);
+      }) 
+    })
+
+
+  getArtistUrl = (artistName) => this.getUri(`artist:${artistName}`)
   
+  getAlbumUrl = (albumName) => this.getUri(`album:${albumName}`)
+
+  static get(){
+    return new DbHelper().init();
+  }
+
 }
 
-const dbHelper= new DbHelper();
-dbHelper.init();
-
-export default dbHelper;

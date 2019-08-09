@@ -1,20 +1,25 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes /*, PreloadAllModules, PreloadingStrategy,NoPreloading*/ } from '@angular/router';
 
-import { MainRoutes } from './model/types';
+import { MainRoutes, MetadataType } from './model/types';
 
-import { AlbumsComponent }  from './albums.component';
-import { ArtistsComponent }  from './artists.component';
+import { MetadataComponent }  from './metadatas.component';
 import { OngoingMusicComponent } from './ongoing-music.component';
 
 const appRoutes: Routes= [
   {
     path: MainRoutes.albums,
-    component: AlbumsComponent
+    component: MetadataComponent,
+    data: {
+        metadataType: MetadataType.album
+    }
   },
   {
     path: MainRoutes.artists,
-    component: ArtistsComponent
+    component: MetadataComponent,
+    data: {
+        metadataType: MetadataType.artist
+    }
   },
   {
     path: MainRoutes.ongoing,

@@ -14,9 +14,14 @@ import { Song } from './model/songs-response';
   styleUrls: ['ongoing-music.component.css'],
 
 })
-export class OngoingMusicComponent {
+export class OngoingMusicComponent implements OnInit {
 
   constructor(public dsh: DisplaySongsHelper) { }
+  
+  ngOnInit(){
+    // We need to load songs
+    if (! this.dsh.songsLoadedOrLoading) this.dsh.loadFromLastRequest();
+  }
 
 }
 

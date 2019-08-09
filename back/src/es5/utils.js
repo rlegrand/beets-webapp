@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -8,50 +8,52 @@ Object.defineProperty(exports, "__esModule", {
 exports.__GetDependency__ = exports.__get__ = _get__;
 exports.__set__ = exports.__Rewire__ = _set__;
 exports.__ResetDependency__ = _reset__;
-exports.default = exports.__RewireAPI__ = void 0;
+exports.__RewireAPI__ = exports.default = void 0;
 
-var _minimist = _interopRequireDefault(require("minimist"));
-
-var _metadata = require("./metadata");
-
-var _server = require("./server");
-
-var _utils = _interopRequireDefault(require("./utils"));
+var _winston = _interopRequireDefault(require("winston"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var logger = _get__("utils").getLogger();
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var args = _get__("minimist")(process.argv.slice(2));
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var usage = "node beetswebapp [server] [genmetadata]";
+var Utils = function Utils() {
+  var _this2 = this;
 
-if (_get__("args")._.length > 1 || ['server', 'genmetadata'].filter(function (action) {
-  return _get__("args")._[0] == action;
-}).length == 0) {
-  _get__("logger").error(_get__("usage"));
+  _classCallCheck(this, Utils);
 
-  process.exit(-1);
-}
+  _defineProperty(this, "getDate", function (dateStr) {
+    var regex = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+    var dateArray = regex.exec(dateStr);
+    return new Date(parseInt(dateArray[1]), parseInt(dateArray[2]) - 1, // Careful, month starts at 0!
+    parseInt(dateArray[3]), parseInt(dateArray[4]), parseInt(dateArray[5]), parseInt(dateArray[6])).getTime();
+  });
 
-var action = _get__("args")._[0];
+  _defineProperty(this, "isDev", function () {
+    return process.env['NODE_ENV'] == 'development';
+  });
 
-switch (_get__("action")) {
-  case 'server':
-    var server = new (_get__("StandaloneServer"))();
-    server.run(80);
-    break;
-
-  case 'genmetadata':
-    var artistmeta = new (_get__("ArtistMetadata"))();
-    var albummeta = new (_get__("AlbumMetadata"))();
-    artistmeta.store(1000, 1).toPromise().then(function () {
-      return albummeta.store(1000, 1).toPromise();
-    }).then(function () {
-      return _get__("logger").info("Generation complete");
+  _defineProperty(this, "getLogger", function () {
+    return _get__("winston").createLogger({
+      level: _this2.isDev ? 'debug' : 'info',
+      transports: [new (_get__("winston").transports.Console)()]
     });
-    break;
-}
+  });
+
+  _defineProperty(this, "onDevRx", function (_this, _fn) {
+    for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      args[_key - 2] = arguments[_key];
+    }
+
+    if (_this2.isDev()) return _fn.call.apply(_fn, [_this].concat(args));else return identity();
+  });
+};
+
+var _DefaultExportValue = new (_get__("Utils"))();
+
+var _default = _DefaultExportValue;
+exports.default = _default;
 
 function _getGlobalObject() {
   try {
@@ -161,32 +163,11 @@ function _get__(variableName) {
 
 function _get_original__(variableName) {
   switch (variableName) {
-    case "utils":
-      return _utils.default;
+    case "winston":
+      return _winston.default;
 
-    case "minimist":
-      return _minimist.default;
-
-    case "args":
-      return args;
-
-    case "logger":
-      return logger;
-
-    case "usage":
-      return usage;
-
-    case "action":
-      return action;
-
-    case "StandaloneServer":
-      return _server.StandaloneServer;
-
-    case "ArtistMetadata":
-      return _metadata.ArtistMetadata;
-
-    case "AlbumMetadata":
-      return _metadata.AlbumMetadata;
+    case "Utils":
+      return Utils;
   }
 
   return undefined;
@@ -284,5 +265,23 @@ function _with__(object) {
   };
 }
 
-var _default = _RewireAPI__;
-exports.default = _default;
+var _typeOfOriginalExport = _typeof(_DefaultExportValue);
+
+function addNonEnumerableProperty(name, value) {
+  Object.defineProperty(_DefaultExportValue, name, {
+    value: value,
+    enumerable: false,
+    configurable: true
+  });
+}
+
+if ((_typeOfOriginalExport === 'object' || _typeOfOriginalExport === 'function') && Object.isExtensible(_DefaultExportValue)) {
+  addNonEnumerableProperty('__get__', _get__);
+  addNonEnumerableProperty('__GetDependency__', _get__);
+  addNonEnumerableProperty('__Rewire__', _set__);
+  addNonEnumerableProperty('__set__', _set__);
+  addNonEnumerableProperty('__reset__', _reset__);
+  addNonEnumerableProperty('__ResetDependency__', _reset__);
+  addNonEnumerableProperty('__with__', _with__);
+  addNonEnumerableProperty('__RewireAPI__', _RewireAPI__);
+}

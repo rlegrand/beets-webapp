@@ -1,6 +1,6 @@
 
 
-export interface ArtistRaw{
+export interface MetadataRaw{
     name:string,
     addedDate:number,
     url: string,
@@ -8,7 +8,7 @@ export interface ArtistRaw{
     mainField: string
 }
 
-export interface Artist{
+export interface Metadata{
     name:string,
     addedDate:Date,
     url: string,
@@ -16,14 +16,6 @@ export interface Artist{
     mainField: string
 }
 
-export interface ArtistsResponse{
-    data: ArtistRaw[]
-}
-
-export interface Album{
-  name: string
-}
-
-export interface AlbumsResponse{
-  data: Album[]
+export interface MetadataResponse{
+    data: MetadataRaw[]
 }

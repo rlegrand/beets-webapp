@@ -2,7 +2,7 @@ version: '3'
 
 services:
   server:
-    image: IMG_PATTERN
+    image: rlegrand/beets-webapp-${ARCH}
     ports:
       - 80:80
     volumes:
@@ -16,11 +16,13 @@ services:
       # - by default, it's $HOME/Music
       # - otherwise you modified it in your conf, so retrieve it by running "grep directory /your/beets/config.yml"
       - <path to the beets music folder>:/path/to/directory
+    command: ${ACTION}
   redis:
     image: redis
     command: "redis-server --appendonly yes"
     volumes:
-      - ./dbdata:/data/
+      - bwa_sql_volume:/dbdata:/data/
 
     
     
+

@@ -1,0 +1,21 @@
+
+<ul class="metadataList">
+  <li *ngFor="let meta of metadatas">
+    <article (click)="search(meta.mainField, meta.name)"  >
+      <header> {{ meta.name }} </header>
+      <div class="imgTopContainer">
+        <div class="dummy"></div>
+        <div class="imgLowContainer">
+          <div class="imgContainer">
+            <img alt="Image not found" [src]="meta.url" />
+          </div>
+        </div>
+      </div>
+			<footer>
+				<p>Added on
+				<time [dateTime]="utils.getFormatedDate(meta.addedDate)"> {{ meta.addedDate.toDateString() }} </time>
+				</p>
+			</footer>
+    </article>
+  <li>
+</ul>

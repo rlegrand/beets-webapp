@@ -8,4 +8,10 @@ services:
     image: rlegrand/beets-webapp${ARCH}
     ports:
       - 80:80
+  redis:
+    image: redis
+    command: "redis-server --appendonly yes"
+    volumes:
+      - ./dbdata:/data/
+
     

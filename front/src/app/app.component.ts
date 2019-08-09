@@ -8,17 +8,24 @@ import { DisplaySongsHelper } from './services/displaySongsHelper.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  styleUrls: ['app.component.css']
 })
 export class AppComponent implements OnInit {
 
   textRequest: string;
+  menuClasses: {hide: boolean};
 
-  constructor(private dsh: DisplaySongsHelper) {
-    dsh.textRequest.subscribe((tr: string) => { console.log(tr); if (this.textRequest !== tr) this.textRequest = tr; })
-  }
+  constructor(private dsh: DisplaySongsHelper) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    // register display song helper to update request input form
+    this.dsh.textRequest.subscribe((tr: string) => { console.log(tr); if (this.textRequest !== tr) this.textRequest = tr; });
+
+    // menu classes
+    this.menuClasses = { 'hide': false };
+    
+   }
 
   search = () => {
     if (this.textRequest === undefined || this.textRequest.length === 0) {
@@ -27,6 +34,10 @@ export class AppComponent implements OnInit {
 
     this.dsh.getAndDisplaySongs(this.textRequest);
     return false;
+  }
+
+  toggleMenu= () => {
+    this.menuClasses.hide=!this.menuClasses.hide;
   }
 
 

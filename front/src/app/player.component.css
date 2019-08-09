@@ -1,0 +1,84 @@
+
+/*  */
+ul{
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------- */
+/* -------------------------- PLAYLIST COMPONENT ----------------------------- */
+/* --------------------------------------------------------------------------- */
+
+
+.player{
+    display: block;
+    font-size: 1.5em;
+    width: 70%;
+    list-style-type: none;
+}
+
+.player ul{
+    list-style-type: none;
+    color: #555;
+}
+
+.playlist{
+  max-height: 100vh;
+  overflow-y: scroll;
+  margin-top: 1em;
+  max-width: 100%;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+}
+
+.playlist .song{
+    display: inline-flex;
+    cursor: pointer;
+    margin-top: 0.2em;
+}
+
+.playlist .selectedsong *{
+    background-color: #EEE;
+}
+
+.playlist .song ul.songData {
+    padding-left: 2em;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-bottom: solid 1px lightgray;
+}
+
+.playlist .song ul.songData li{
+    display: inline-block;
+    margin-left: 1.5em;
+    line-height: 2em;
+}
+
+
+.songData li.songTitle{
+    color: #EE8A8A;
+}
+
+.songData li.songArtist{
+    color: #8ED7B5;
+}
+
+.songData li.songAlbum{
+    color: #A9D6D6;
+}
+
+
+.playlist .selectedsong::before{
+    position: relative;
+    content: "\1F3B5";
+    margin-right: -2em;
+    width: 2em;
+    display: inline-block;
+    text-align: end;
+}
+
+@media screen and (min-device-width: 200px) and (max-device-width: 640px){
+
+}

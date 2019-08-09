@@ -5,42 +5,33 @@ The webapp will evolve from time to time, actually it allows to make your own be
 
 # Use it
 
-## Usage
-On arm architectures:
+## Prepare
 
-    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> -v bwa_sql_volume:/app/data/ rlegrand/beets-webapp-arm [action]
-    
-On x86 architectures
+    mkdir -p ~/bwa/ && cd ~/bwa
+    curl -o docker-compose.yml  https://raw.githubusercontent.com/rlegrand/beets-webapp/master/docker/docker-compose.prod.yml
 
-    docker run --rm -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> -v bwa_sql_volume:/app/data/ rlegrand/beets-webapp-x86 [action]
-
-Where:
-* </path/to/beetsconf>
-  * is the beets yaml config file ( installed here by default ~/.config/beets/config.yaml t)
-* </path/to/lib> is the path to the beets library file
-  * by default, it's on the same place than your config file and named library.db
-  * otherwise you modified it in your conf, so retrieve it by running "grep library /your/beets/config.yml"
-* </path/to/directory>
-  * The path to the beets directory which contains your music
-  * by default, it's $HOME/Music
-  * otherwise you modified it in your conf, so retrieve it by running "grep directory /your/beets/config.yml"
-* [action]
-  * is not mandatory and by default maps to *server*
-  * Other possible values are: genmetadata
+Edit the following in **docker-compose.yml** (read comments):
+* replace ${ARCH} by "x86" or "arm" depending on your machine architecture
+* <path to beets yaml config> 
+* <path to beets library file>
+* <path to the beets music folder>
 
 ## Start
 
-Create an allias which fits your needs
+Go to the app folder
+    cd ~/bwa
+    
+On first use only, Generate metadata and wait this complete ( Artists/Albums images urls are retrieved from discogs/muscbrainz)
 
-    alias bwa="docker run --rm -d -p 80:80 -v </path/to/beetsconf>:/app/beets/config/config.yaml -v </path/to/lib>:</path/to/lib> -v </path/to/directory>:</path/to/directory> -v bwa_sql_volume:/app/data/ -it rlegrand/beets-webapp-arm"
+    ACTION=genmetadata docker-compose up
 
-Generate metadata: Artists/Albums images will be retrieved in the webapp, but is a slow operation, so it's suggested to do it once before launching the server the first time
+To start the server
 
-    bwa genmetadata
+    docker-compose up
 
-Then you're good to go, launch the server
+To stop the server
 
-    bwa
+    docker-compose down
 
 # Developpers
 

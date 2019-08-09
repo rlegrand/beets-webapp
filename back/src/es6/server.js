@@ -5,10 +5,13 @@ import http from 'http';
 import bodyParser from 'body-parser';
 import { BeetsHelper } from './beets';
 import dbHelper from './db';
-import { ArtistMetadata } from './metadata';
+import utils from './utils';
+import { ArtistMetadata, AlbumMetadata } from './metadata';
 
 import { zip, from, of } from 'rxjs';
-import { map, mergeMap, take, tap, toArray } from 'rxjs/operators';
+import { identity, map, mergeMap, take, tap, toArray, concatAll } from 'rxjs/operators';
+
+const logger= utils.getLogger();
 
 
 let defaultConfigCallback= function(appServer){
@@ -24,67 +27,71 @@ export class StandaloneServer{
         this.beetsHelper= new BeetsHelper();
         this.server= this.initServer();
         this.artistMetaHelper= new ArtistMetadata();
+        this.albumMetaHelper= new AlbumMetadata();
     }
 
 
     buildBeetsApi= (appServer) => {
 
-      appServer.post('/api/beets/songs', (req, res) => {
+      appServer.post('/api/beets/songs', (req, res, next) => {
 
             let filter= req.body.beetsfilter;
-            console.log(`Using beet filter ${filter}`);
+            logger.debug(`Using beet filter ${filter}`);
 
             this.beetsHelper.beetsSongsRequest(filter)
             .then( (songs) => {
                 res.send({songs: songs});
             })
-            .catch( (err) => {
-                console.error(err);
-                res.send(err);
-            });
+            .catch( next );
 
         });
 
 
-        appServer.post('/api/beets/artists', (req, res) => {
 
-          console.log(`Retrieving all album artists`);
+        appServer.post('/api/beets/artists', (req, res, next) => {
+
+          logger.info(`Retrieving all artists and albumartists`);
 
           const artistsObs= from( this.beetsHelper.beetsMixedArtists() )
           .pipe(
               mergeMap((artists) => from(artists)),
-//              tap( (artist) => console.log(`Treating artist ${artist.name}`) ),
-              mergeMap((artist) => zip( of(artist), this.artistMetaHelper.getArtistImageOnly(artist.name))),
+              utils.onDevRx( this, take, 10 ),
+              utils.onDevRx( this, tap, (artist) => logger.debug(`Treating artist ${artist.name}`) ),
+              mergeMap((artist) => zip( of(artist), this.artistMetaHelper.getImageOnly(artist.name))),
               map( ([artist,url]) => {
                   artist.url= url; 
                   return artist;
                 } ),
-//              tap( (artist) => console.log(`data for artist: ${artist}`)),
               toArray()
           ).toPromise()
           .then((artists) => {
             res.send({ data: artists });
           })
-          .catch((err) => {
-              console.error(err);
-              res.send(err);
-          });
+          .catch( next );
 
         });
 
 
-        appServer.post('/api/beets/albums', (req, res) => {
+        appServer.post('/api/beets/albums', (req, res, next) => {
 
-            console.log(`Retrieving all albums`);
+          logger.info(`Retrieving all albums`);
 
-            this.beetsHelper.beetsAlbums()
-            .then( (albums) => {
-                res.send({data: albums});
-            })
-            .catch( (err) => {
-                console.error(err);
-                res.send(err);
-            }); 
+          const artistsObs= from( this.beetsHelper.beetsAlbums() )
+          .pipe(
+              mergeMap((albums) => from(albums)),
+              utils.onDevRx( this, take, 10 ),
+              utils.onDevRx( this, tap, (album) => logger.debug(`Treating album ${album.name}`) ),
+              mergeMap((album) => zip( of(album), this.albumMetaHelper.getImageOnly(album.name))),
+              map( ([album,url]) => {
+                  album.url= url; 
+                  return album;
+                } ),
+              toArray()
+          ).toPromise()
+          .then((albums) => {
+            res.send({ data: albums });
+          })
+          .catch( next );
 
         });
 
@@ -98,17 +105,18 @@ export class StandaloneServer{
         this.configServerCallbak(appServer);
 
         const beetsConf= this.beetsHelper.getBeetsConfig();
+
         const logError= (err, req, res, next) => {
-          console.error('error received');
-          console.error(err);
+          logger.error('middleware detected error');
+          logger.error(err.stack);
+          res.status(500).send({});
           next(err);
         }
 
-        appServer
-        .use(express.static(beetsConf.directory))
-        .use(logError);
-
         this.buildBeetsApi(appServer);
+        appServer.use(express.static(beetsConf.directory))
+        appServer.use(logError);
+
 
         return http.createServer(appServer);
     }
@@ -121,7 +129,7 @@ export class StandaloneServer{
 
     run= (port) => {
         this.server.listen(port, function(){
-            console.log(`server listening on ${port}`);
+            logger.info(`server listening on ${port}`);
         });
     }
 

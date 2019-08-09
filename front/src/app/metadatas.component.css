@@ -1,12 +1,14 @@
 
-ul.articleList{
+ul.metadataList{
   list-style-type: none;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
+  max-height: 100vh;
+  overflow: scroll;
 }
 
-ul.articleList li{
+ul.metadataList li{
   width: 20%;
   margin: 1em;
 }
@@ -72,3 +74,27 @@ img{
   left: 50%; /* poussé de la moitié de largeur du référent */
   transform: translate(-50%,-50%); /* tiré de la moitié de sa propre hauteur/largeur */    
 }
+
+/* --------------------------------------------------------------------------- */
+/* -------------------------- CUSTOM MEDIAS ---------------------------------- */
+/* --------------------------------------------------------------------------- */
+@media screen and (min-device-width: 200px) and (max-device-width: 640px){
+
+ul.metadataList{
+  flex-flow: column;
+  padding: 0; 
+}
+
+ul.metadataList li{
+  width: 70%;
+  margin: 1em;
+}
+
+}
+
+
+
+
+
+
+

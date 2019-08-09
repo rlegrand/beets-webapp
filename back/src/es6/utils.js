@@ -1,5 +1,6 @@
 'use strict'
 
+import winston from 'winston';
 
 class Utils{
     getDate = (dateStr) => {
@@ -13,6 +14,18 @@ class Utils{
             parseInt(dateArray[5]),
             parseInt(dateArray[6])
         ).getTime();
+    }
+
+    isDev = () => process.env['NODE_ENV'] == 'development'
+
+    getLogger= () => winston.createLogger({
+        level: this.isDev? 'debug' : 'info',
+        transports: [new winston.transports.Console()]
+    })
+
+    onDevRx = (_this, _fn, ...args) => {
+        if (this.isDev()) return _fn.call(_this, ...args);
+        else return identity();
     }
 
 }

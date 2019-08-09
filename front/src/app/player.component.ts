@@ -4,6 +4,7 @@ import {Song} from './model/songs-response';
 @Component({
 	selector:'custom-player',
 	templateUrl:'player.component.html',
+	styleUrls: ['player.component.css'],
 	inputs: ['playlist:playlist']
 })
 export class Player{
