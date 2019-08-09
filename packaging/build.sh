@@ -71,7 +71,7 @@ function build(){
 
 # Ruin deployment if needed
 function deploy(){
-  IMAGE=$(grep "image:" docker/docker-compose.yml|sed 's/ *image: //'|sed 's/\$.*$//')-$1
+  IMAGE=$(grep -E "image.*ARCH" docker/docker-compose.yml|sed 's/ *image: //'|sed 's/\$.*$//')-$1
   cd ${SCRIPT_PATH}
   [ ! -z "$DEPLOY_SCRIPT" ] && eval "./$DEPLOY_SCRIPT $IMAGE"
 }
