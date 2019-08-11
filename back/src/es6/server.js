@@ -24,7 +24,7 @@ export class StandaloneServer{
 
     constructor(configServerCallbak){
         this.configServerCallbak= configServerCallbak? configServerCallbak: defaultConfigCallback;
-        this.beetsHelper= new BeetsHelper();
+        this.beetsHelper= BeetsHelper.getInstance();
         this.server= this.initServer();
         this.artistMetaHelper= new ArtistMetadata();
         this.albumMetaHelper= new AlbumMetadata();
@@ -99,39 +99,40 @@ export class StandaloneServer{
 
     }
 
-    initServer= () => {
+  initServer = () => {
 
-        const appServer= express();
-        this.configServerCallbak(appServer);
+    const appServer = express();
+    this.configServerCallbak(appServer);
 
-        const beetsConf= this.beetsHelper.getBeetsConfig();
+    const beetsConf = this.beetsHelper.getBeetsConfig();
 
-        const logError= (err, req, res, next) => {
-          logger.error('middleware detected error');
-          logger.error(err.stack);
-          res.status(500).send({});
-          next(err);
-        }
-
-        this.buildBeetsApi(appServer);
-        appServer.use(express.static(beetsConf.directory))
-        appServer.use(logError);
-
-
-        return http.createServer(appServer);
+    const logError = (err, req, res, next) => {
+      logger.error('middleware detected error');
+      logger.error(err.stack);
+      res.status(500).send({});
+      next(err);
     }
+    
+    this.buildBeetsApi(appServer);
+
+    appServer
+      .use(express.static(beetsConf.directory))
+      .use(logError);
+
+    return http.createServer(appServer);
+  }
 
 
-    getServer= () => {
-        return this.server;
-    }
+  getServer = () => {
+    return this.server;
+  }
 
 
-    run= (port) => {
-        this.server.listen(port, function(){
-            logger.info(`server listening on ${port}`);
-        });
-    }
+  run = (port) => {
+    this.server.listen(port, function () {
+      logger.info(`server listening on ${port}`);
+    });
+  }
 
 };
 

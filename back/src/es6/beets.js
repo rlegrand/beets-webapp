@@ -4,13 +4,20 @@ import path from 'path';
 import { spawn } from 'child_process';
 import yaml from 'js-yaml';
 import fs from 'fs';
-import { from, zip } from 'rxjs';
-import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first } from 'rxjs/operators';
+import { from, iif, zip, of } from 'rxjs';
+import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first, defaultIfEmpty } from 'rxjs/operators';
 
 import myutils from './utils.js';
 const logger= myutils.getLogger();
 
 export class BeetsHelper{
+
+  static getInstance(){
+    if ( BeetsHelper.singleInstance == undefined ){
+      BeetsHelper.singleInstance= new BeetsHelper();
+    }
+    return BeetsHelper.singleInstance;
+  }
 
   constructor(){
     this.init.bind(this);
@@ -22,7 +29,19 @@ export class BeetsHelper{
   init(){
     this.beetsConfPath= '/app/beets/config/config.yaml';
     this.beetsConf = yaml.safeLoad(fs.readFileSync(this.beetsConfPath, 'utf8'));
+    logger.debug(`Loaded beets conf: ${this.beetsConf}`);
     this.rememberDateConf();
+    this.initCache();
+  }
+
+  initCache= () => {
+    Promise.all( [this.beetsAlbums, this.beetsMixedArtists] )
+    .then( ([albums, artists]) => {
+      this.cache= {
+        albums: albums,
+        artists: artists
+      }
+    } );    
   }
   
   beetRequest = (args) => {
@@ -144,14 +163,41 @@ export class BeetsHelper{
       .toPromise();
   }
 
-
+  //TODO: 
+  // replace cache by an object containing an isUp2Date and an update method
+  // cache content must be made available through a cold observable
+  //  These methods (beetsAlbums and so on) will then only check if cache is up 2 date, 
+  // update it if needed and return the cache content stream
   beetsAlbums= () => {
 
     let delim= '<#>';
 
+    return of(this.cache)
+    .pipe(
+      filter( (data) => data !== undefined && data.albums !== undefined ),
+      map( (cache) => ( {cache: true, data: cache.albums} ) ),
+      defaultIfEmpty( {cache:false}  ),
+      tap( (obj) => console.log(`cache ? ${obj.cache}`)  ),
+      mergeMap( (cacheObj) => 
+        iif( () => cacheObj.cache,
+          of(cacheObj.data),
+          from(this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`]))
+          .pipe(
+            tap( (albums) => { logger.debug('Retrieved albums: '); logger.debug(albums) } ),
+            mergeMap( (albums) => this.getAlbumsFromString(albums, delim, 'album') ),
+            tap( (albums) => { console.log('After fromString'); console.log(albums); } ),
+            map( (albums) => albums.sort((a1, a2) => ({ true: -1, false: 1 }[a1.name < a2.name])) ),
+            tap( (albums) => this.cache.albums= albums )
+          )
+        )
+      )
+    ).toPromise();
+
+    /*
     return this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`])
       .then( (albums) => this.getAlbumsFromString(albums, delim, 'album') )
       .then( (albums) => albums.sort( (a1,a2) => ( {true: -1, false: 1}[a1.name < a2.name] ) ) );
+    */
   }
 
   getBeetsConfig= () => this.beetsConf

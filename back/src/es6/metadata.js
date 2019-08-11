@@ -34,7 +34,7 @@ export class EntityMetadata{
       }
     } );
 
-    this.beetsHelper= new BeetsHelper();
+    this.beetsHelper= BeetsHelper.getInstance();
     this.dbHelper= DbHelper.get();
     this.ignoredEntities=  this.getIgnoredEntities();
     this.notFoundUrl= this.getNotFoundUri();
