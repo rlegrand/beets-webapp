@@ -116,7 +116,7 @@ export class StandaloneServer{
     this.buildBeetsApi(appServer);
 
     appServer
-      .use(express.static(beetsConf.directory))
+      .use(beetsConf.directory, express.static(beetsConf.directory))
       .use(logError);
 
     return http.createServer(appServer);

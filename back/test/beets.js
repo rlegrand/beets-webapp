@@ -27,7 +27,6 @@ const mockBeetsHelper= () => {
     beetsHelper.rememberDateConf= sinon.spy();
     beetsHelper.getLastModificationDate= sinon.spy();
     beetsHelper.confChanged= sinon.spy();
-    beetsHelper.initCache= sinon.spy();
 
     // Invoke constructor like method
     initFake.restore();

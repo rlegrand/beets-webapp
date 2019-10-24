@@ -9,6 +9,7 @@ import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first,
 
 import myutils from './utils.js';
 const logger= myutils.getLogger();
+import { Cache } from './cache';
 
 export class BeetsHelper{
 
@@ -35,18 +36,18 @@ export class BeetsHelper{
   }
 
   initCache= () => {
-    Promise.all( [this.beetsAlbums, this.beetsMixedArtists] )
-    .then( ([albums, artists]) => {
-      this.cache= {
-        albums: albums,
-        artists: artists
-      }
-    } );    
+    this.cache= new Cache();
   }
   
-  beetRequest = (args) => {
+  beetRequest = (args, withCache= false) => {
 
-    return new Promise( (resolve, reject) => {
+    const cacheKey= new Buffer( args.join(' ') ).toString('base64');
+    
+    if (withCache && this.cache.has(cacheKey)){
+      return this.cache.get(cacheKey).toPromise();
+    }
+
+    const res= new Promise( (resolve, reject) => {
 
         let updatedArgs= ['-c', this.beetsConfPath, ...args];
 
@@ -71,6 +72,12 @@ export class BeetsHelper{
       }
     );
 
+    if (withCache){
+      this.cache.set( cacheKey, from(res) );
+      return this.cache.get(cacheKey).toPromise();
+    }
+
+    return res;
   }
 
   // Map the array of elements strings provided to an array of unique elements objects
@@ -133,7 +140,7 @@ export class BeetsHelper{
   beetsAlbumArtists= () => {
     let delim= '<#>';
 
-    return this.beetRequest(['ls', '-a', 'added-', '-f', `'$albumartist${delim}$added${delim}albumartist'`])
+    return this.beetRequest(['ls', '-a', 'added-', '-f', `'$albumartist${delim}$added${delim}albumartist'`], true)
       .then( (albumartist) => this.getArtistsFromString(albumartist,delim, 'albumartist') );
   }
 
@@ -141,7 +148,7 @@ export class BeetsHelper{
   beetsArtists= () => {
     let delim= '<#>';
 
-    return this.beetRequest(['ls', 'added-', "-f", `'$artist${delim}$added${delim}artist'`])
+    return this.beetRequest(['ls', 'added-', "-f", `'$artist${delim}$added${delim}artist'`], true)
       .then( (artist) => this.getArtistsFromString(artist,delim, 'artist') );
   }
 
@@ -163,41 +170,13 @@ export class BeetsHelper{
       .toPromise();
   }
 
-  //TODO: 
-  // replace cache by an object containing an isUp2Date and an update method
-  // cache content must be made available through a cold observable
-  //  These methods (beetsAlbums and so on) will then only check if cache is up 2 date, 
-  // update it if needed and return the cache content stream
-  beetsAlbums= () => {
 
+  beetsAlbums= () => {
     let delim= '<#>';
 
-    return of(this.cache)
-    .pipe(
-      filter( (data) => data !== undefined && data.albums !== undefined ),
-      map( (cache) => ( {cache: true, data: cache.albums} ) ),
-      defaultIfEmpty( {cache:false}  ),
-      tap( (obj) => console.log(`cache ? ${obj.cache}`)  ),
-      mergeMap( (cacheObj) => 
-        iif( () => cacheObj.cache,
-          of(cacheObj.data),
-          from(this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`]))
-          .pipe(
-            tap( (albums) => { logger.debug('Retrieved albums: '); logger.debug(albums) } ),
-            mergeMap( (albums) => this.getAlbumsFromString(albums, delim, 'album') ),
-            tap( (albums) => { console.log('After fromString'); console.log(albums); } ),
-            map( (albums) => albums.sort((a1, a2) => ({ true: -1, false: 1 }[a1.name < a2.name])) ),
-            tap( (albums) => this.cache.albums= albums )
-          )
-        )
-      )
-    ).toPromise();
-
-    /*
-    return this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`])
+    return this.beetRequest(['ls', 'added-', "-f", `'$album${delim}$added${delim}album'`], true)
       .then( (albums) => this.getAlbumsFromString(albums, delim, 'album') )
       .then( (albums) => albums.sort( (a1,a2) => ( {true: -1, false: 1}[a1.name < a2.name] ) ) );
-    */
   }
 
   getBeetsConfig= () => this.beetsConf
