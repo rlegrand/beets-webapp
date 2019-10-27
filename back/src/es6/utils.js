@@ -21,7 +21,7 @@ class Utils{
     isDev = () => process.env['NODE_ENV'] == 'development'
 
     getLogger= () => winston.createLogger({
-        level: this.isDev? 'debug' : 'info',
+        level: this.isDev()? 'debug' : 'info',
         transports: [new winston.transports.Console()]
     })
 
