@@ -5,7 +5,7 @@ import { spawn } from 'child_process';
 import yaml from 'js-yaml';
 import fs from 'fs';
 import { from, iif, zip, of } from 'rxjs';
-import { map, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first, defaultIfEmpty } from 'rxjs/operators';
+import { map, take, tap, toArray, toPromise, mergeMap, groupBy, reduce, filter, first, defaultIfEmpty } from 'rxjs/operators';
 
 import myutils from './utils.js';
 const logger= myutils.getLogger();
@@ -39,7 +39,7 @@ export class BeetsHelper{
     this.cache= new Cache();
   }
   
-  beetRequest = (args, withCache= false) => {
+  beetRequest = (args, withCache= myutils.needCache() ) => {
 
     const cacheKey= new Buffer( args.join(' ') ).toString('base64');
     
@@ -66,14 +66,23 @@ export class BeetsHelper{
         beet.on('close', (code) => {
           resolve(
             res.split('\n')
-            .filter( (elt, idx) => elt && elt.trim().length > 0 )
+            .filter( (elt, idx) =>{
+              return elt && elt.trim().length > 0;
+            } )
+//            .filter( (elt, idx) =>{
+//              const keep=!myutils.isDev() || idx < 10;
+//              logger.debug(`Idx: ${idx}, keeping: ${keep}, entity: ${elt}`);
+//              return keep;
+//            } )
           );
         });
       }
     );
 
+    const asObs= from(res); //.pipe( myutils.onDevRx( this, take, 10 ) );
+
     if (withCache){
-      this.cache.set( cacheKey, from(res) );
+      this.cache.set( cacheKey,  asObs );
       return this.cache.get(cacheKey).toPromise();
     }
 
@@ -81,7 +90,7 @@ export class BeetsHelper{
   }
 
   // Map the array of elements strings provided to an array of unique elements objects
-  // parseDelimString(["a#b#c"],["a#b#d"] '#', ['first','second','third'], 'first') -> [{first:'a', second:'b', third:'c'}]
+  // parseDelimString(["a#b#c","a#b#d"], '#', ['first','second','third'], 'first') -> [{first:'a', second:'b', third:'c'}]
   parseDelimString= (toParse, delim, mapFields, unicityField) => 
     from( toParse )
     .pipe(
@@ -95,6 +104,7 @@ export class BeetsHelper{
       filter( (singleElt) => singleElt[unicityField].trim().length > 0 ),
       groupBy( (singleElt) => singleElt[unicityField] ),
       mergeMap( (group) =>  group.pipe( first() ) ),
+      //myutils.onDevRx(this, take, 10),
       toArray()
     ).toPromise()
 

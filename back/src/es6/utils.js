@@ -25,6 +25,8 @@ class Utils{
         transports: [new winston.transports.Console()]
     })
 
+    needCache= () => this.isDev()
+
     onDevRx = (_this, _fn, ...args) => {
         if (this.isDev()) return _fn.call(_this, ...args);
         return tap( (_) => {} );

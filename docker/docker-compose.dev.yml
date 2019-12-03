@@ -5,11 +5,17 @@ services:
     volumes:
       - ../back:/app/back
       - ../front/dist:/app/front
+      - ../ignore/volumes/config/config.yaml:/app/beets/config/config.yaml
+      - ../ignore/volumes/sqlite/beets-library-full.blb:/app/beets/lib/beets-library.blb # update to use other libs
+    # - ../ignore/volumes/sqlite/beets-library-unstoredartists.blb:/app/beets/lib/beets-library.blb # update to use other libs
+    # - ../beetsdev/beets-library-encoding.blb:/app/beets/lib/beets-library.blb # update to use other libs
     environment:
       - NODE_ENV=development
+      - JS_SCRIPT_PATH=${JS_SCRIPT_PATH}
     ports:
       - 9229:9229
-    entrypoint: ["npm", "run", "dev", "--"]
+    entrypoint: ["npm", "run", "${NPM_ACTION}", "--"]
+    #entrypoint: "${ENTRYPOINT_ACTION}"
     command: ${ACTION}
   redis:
     volumes:

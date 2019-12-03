@@ -50,8 +50,9 @@ export class DisplaySongsHelper implements OnInit{
 
 
   getAndDisplaySongs= (request: string ) => {
-    this.shareTextRequest(request)
-    this.loadSongs(request)
+    const req= this.utils.escape(request);
+    this.shareTextRequest(req)
+    this.loadSongs(req)
       .subscribe(
         (resp: SongsResponse) => this.router.navigate([MainRoutes.ongoing]),
         (err: any) => this.utils.displayError(err)

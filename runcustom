@@ -5,8 +5,8 @@ set -e
 : ${ARCH:="x86"}
 
 export ARCH="-${ARCH}"
-export NPM_ACTION="dev"
-export ACTION=${1:-server}
+export NPM_ACTION="customdebug"
+export JS_SCRIPT_PATH=${1}
 
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml down
 docker-compose -f docker/docker-compose.yml -f docker/docker-compose.dev.yml up -d 

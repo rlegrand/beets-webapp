@@ -86,6 +86,7 @@ export class EntityMetadata{
   errorImage= () => 
     catchError( ( err ) => {
       if (err.response && (err.response.status == 503 || err.response.status == 429 )) throw quotaExceeded;
+      logger.error(err);
       logger.error( `An unexpected error occured, relpacing by notFound url` );
       return of(this.notFoundUrl);
     } )
@@ -102,7 +103,7 @@ export class EntityMetadata{
     
     return [
       flatMap( (image) => zip( of(image), contains(image) ) ),
-      flatMap(([image,ignoreImage]) => iif(() => ignoreImage, empty(), of(image)))
+      flatMap(([image,ignoreImage]) => iif(() => ignoreImage, of(this.notFoundUrl), of(image)))
     ];
 
   }
@@ -133,8 +134,8 @@ export class EntityMetadata{
       );
 
   // Search image on db, and if not found on discogs and musicbrainz
-  getImage= (entityName,delay= 1000) => 
-    this.ignoreEntities(entityName)
+  getImage= (entityName,delay= 1000, useDbOnly=false) => {
+      const entitiesFromDb= this.ignoreEntities(entityName)
       .pipe(
         flatMap( (shouldIgnore) => 
           iif( () => shouldIgnore, 
@@ -145,9 +146,17 @@ export class EntityMetadata{
               map( (url) => ({url:url,needToStore:false, rateExcceded: false}) ) ) )
         ),
         catchError(  (err) => {
+          logger.error(`Entity not found ${entityName}`);
           if ( err.name == entityNotStored.name ) return of({url:undefined, needToStore:true, rateExcceded: false});
           else throw err;
-        }),
+        }));
+        
+        // Dont search image with APIs
+        if (useDbOnly){
+          return entitiesFromDb;
+        }
+        
+        return entitiesFromDb.pipe(
         //this.log(`looking for ${artistName}`),
         flatMap( (data) => 
           // data comes from DB, keep data as it
@@ -155,7 +164,8 @@ export class EntityMetadata{
             of(data), 
             // otherwise get it from music brainz
             this.getFromDiscogs(entityName, delay)
-            .pipe( map( (url) => ( {url:url, needToStore: true, rateExcceded: false } )  ) ))
+            .pipe( 
+              map( (url) => ( {url:url, needToStore: true, rateExcceded: false } )  )))
         ),
         flatMap( (data) => 
           // data comes from DB or url retrieved previously, keep data as it
@@ -163,7 +173,8 @@ export class EntityMetadata{
             of(data), 
             // otherwise get it from music brainz
             this.getFromMsuicbrainz(entityName, delay)
-            .pipe( map( (url) => ({url: url, needToStore: true, rateExcceded: false})  ) ))
+            .pipe( 
+              map( (url) => ({url: url, needToStore: true, rateExcceded: false})  )))
         ),
         catchError( (err) => {
           if (err == quotaExceeded){
@@ -177,14 +188,15 @@ export class EntityMetadata{
         tap( (data) => { if (data.needToStore)  this.storeToDb(entityName,data.url); } ),
         map( (data) => ( { name: entityName, url: data.url, apiUsed: data.needToStore, rateExcceded: data.rateExcceded } ) ),
         utils.onDevRx( this, tap, (res) => logger.debug(`getImage: ${JSON.stringify(res)}`))
-      )
+      );
+  }
 
 
   // "Public like" methods
 
   // Get a single image url
   getImageOnly= (entityName,delay=0) =>
-    this.getImage(entityName, delay)
+    this.getImage(entityName, delay, true)
     .pipe( 
       map( (data) => data.url ),
       tap( (url) => logger.debug(`Img for ${entityName}: ${url}` ) )
@@ -424,7 +436,7 @@ export class AlbumMetadata extends EntityMetadata{
 
   }
  
-  getAllEntities= () => from( this.beetsHelper.beetsMixedArtists() )
+  getAllEntities= () => from( this.beetsHelper.beetsAlbums() )
 
   // END ABSTRACT METHODS
 

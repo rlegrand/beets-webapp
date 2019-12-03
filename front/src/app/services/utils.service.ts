@@ -12,7 +12,7 @@ export class Utils {
 
 	constructor(){}
 
-	escape= (word: string ) => word.replace('"',"\"")
+  escape= (request: string) => request.replace(/["'#()]/g, '\\$&').replace(/\\\\/g, '\\')
 
   getFormatedDate= (date: Date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
 

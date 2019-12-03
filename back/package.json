@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "nodemon --watch src/es6 --exec 'babel-node src/es6/beetswebapp --inspect=0.0.0.0:9229'",
+    "customdebug":"nodemon --watch src/es6 --exec 'babel-node ${JS_SCRIPT_PATH} --inspect-brk=0.0.0.0:9229'",
     "build": "babel src/es6/ --out-dir=src/es5/",
     "app": "node src/es5/beetswebapp",
     "test": "mocha --require @babel/register"

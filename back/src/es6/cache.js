@@ -12,12 +12,14 @@ export class Cache{
     cacheObs= (obs) => obs.pipe( publishReplay() , refCount() )
 
     set= (key, obsValue) => {
+        logger.info(`Setting cache data for key ${key}`);
         this.cache.set( key, {initialObs: obsValue, sharedObs: this.cacheObs(obsValue) } );
     }
 
     has= (key) => this.cache.has(key)
     
     get= (key) => {
+        logger.info(`Getting cache data for key ${key}`);
         const parentRes= this.cache.get(key);
         if (parentRes) return parentRes.sharedObs;
         return undefined;

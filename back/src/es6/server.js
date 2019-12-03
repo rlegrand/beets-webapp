@@ -55,7 +55,6 @@ export class StandaloneServer{
           const artistsObs= from( this.beetsHelper.beetsMixedArtists() )
           .pipe(
               mergeMap((artists) => from(artists)),
-              utils.onDevRx( this, take, 10 ),
               utils.onDevRx( this, tap, (artist) => logger.debug(`Treating artist ${artist.name}`) ),
               mergeMap((artist) => zip( of(artist), this.artistMetaHelper.getImageOnly(artist.name))),
               map( ([artist,url]) => {
@@ -79,7 +78,6 @@ export class StandaloneServer{
           const artistsObs= from( this.beetsHelper.beetsAlbums() )
           .pipe(
               mergeMap((albums) => from(albums)),
-              utils.onDevRx( this, take, 10 ),
               utils.onDevRx( this, tap, (album) => logger.debug(`Treating album ${album.name}`) ),
               mergeMap((album) => zip( of(album), this.albumMetaHelper.getImageOnly(album.name))),
               map( ([album,url]) => {
