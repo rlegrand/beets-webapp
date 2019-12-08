@@ -6,13 +6,13 @@ import { Observable, from, of, iif, zip } from 'rxjs';
 
 import {SongsResponse} from './model/songs-response';
 import {MetadataResponse, Metadata} from './model/albums-response';
-import { MetadataType } from './model/types';
+import { MetadataType, SortMode } from './model/types';
 
 import {BeetApi} from './services/apis.service';
 import {Utils} from './services/utils.service';
 import {Cache} from './services/cache.service';
 import { DisplaySongsHelper } from './services/displaySongsHelper.service';
-import { isEmpty, mergeMap, defaultIfEmpty, map, tap, filter } from 'rxjs/operators';
+import { isEmpty, mergeMap, defaultIfEmpty, map, tap, toArray, filter } from 'rxjs/operators';
 import { MethodFn } from '@angular/core/src/reflection/types';
 
 @Component({
@@ -27,12 +27,20 @@ export class MetadataComponent implements OnInit {
   metadatas: Metadata[] = [];
   // data type
   metadataType: string;
+  // sort mode
+  metadataSortMode: SortMode;
+  // filter
+  metadataFilterValue='';
+  // hide/display sort menu
+  displaySortMenu: false;
+
 
   constructor(private route: ActivatedRoute, private beetApi: BeetApi, private cache: Cache, private dsh: DisplaySongsHelper, public utils: Utils) { }
 
   ngOnInit() {
     this.route.data.subscribe( (data) => this.metadataType= data.metadataType )
     this.getMetadatas();
+    this.metadataSortMode= SortMode.name;
   }
 
   getMetadatas = () => {
@@ -66,6 +74,44 @@ export class MetadataComponent implements OnInit {
 
   // field is the beet field request to use (artist/album/albumartist...)
   search = (field: string, name: string) => this.dsh.getAndDisplaySongs(`${field}:${name}`)
+
+  getSortModes= () => [ SortMode.name, SortMode.nameDesc, SortMode.addeDate, SortMode.addeDateDesc ]
+
+  sort= (sortMode: SortMode) => {
+    if (sortMode == this.metadataSortMode){
+      return;
+    }
+    switch (sortMode) {
+      case SortMode.name:
+        this.metadatas= this.utils.sortByName(this.metadatas);
+        break;
+      case SortMode.nameDesc:
+        this.metadatas= this.utils.sortByNameDesc(this.metadatas);
+        break;
+      case SortMode.addeDate:
+        this.metadatas= this.utils.sortByDate(this.metadatas);
+        break;
+      case SortMode.addeDateDesc:
+        this.metadatas= this.utils.sortByDateDesc(this.metadatas);
+        break;
+      default:
+        break;
+    }
+    this.metadataSortMode= sortMode;
+  }
+
+  filtered():Observable<Metadata[]>{
+    let fm= from(this.metadatas);
+    if ( this.metadataFilterValue && this.metadataFilterValue != ''){
+      fm= fm.pipe(
+        filter( (val:Metadata) => new RegExp(this.metadataFilterValue, 'i').test(val.name) )
+      );
+    }
+
+    return fm.pipe(toArray());
+  }
+
+  }
 
 }
 

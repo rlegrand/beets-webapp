@@ -1,6 +1,43 @@
 
+<ul class="metadataToolbox">
+  <!-- SORT -->
+  <li>
+      <ul class="sortTool">
+        <li>
+          <button title="sort" type="submit" (click)="displaySortMenu=!displaySortMenu" >
+            <img src="/assets/sort.svg" alt="submit" />
+          </button>
+        </li>
+        <li [ngClass]="{'hide': !displaySortMenu}">
+          <ul class="sortMenu">
+            <li 
+              *ngFor="let sortMode of getSortModes()"
+              (click)="sort(sortMode)"
+              [ngClass]="{'selected':sortMode == metadataSortMode}"
+            >
+              {{sortMode}}
+            </li>
+            <!--
+            <li>name </li>
+            <li>name desc</li>
+            <li >added date</li>
+            <li class="selected">added date desc</li>
+            -->
+          </ul>
+        </li>
+      </ul>
+  </li>
+  <!-- FILTER -->
+  <li class="filter">
+    <div class="filterImageContainer">
+      <img src="/assets/filter.svg" />
+    </div>
+    <input [(ngModel)]="metadataFilterValue"  type="text" placeholder="filter...">
+  </li>
+</ul>
+
 <ul class="metadataList">
-  <li *ngFor="let meta of metadatas">
+  <li *ngFor="let meta of filtered() | async">
     <article (click)="search(meta.mainField, meta.name)"  >
       <header> {{ meta.name }} </header>
       <div class="imgTopContainer">

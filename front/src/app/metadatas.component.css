@@ -1,4 +1,101 @@
 
+ul.metadataToolbox{
+  list-style-type: none;
+  display: flex;
+  flex-flow: row;
+}
+
+.metadataToolbox > li {
+  margin-left: 1em;
+}
+
+ul.sortTool, ul.sortMenu{
+  list-style-type: none;
+  display: flex;
+  flex-flow: column;
+  padding: 0;
+}
+
+ul.sortMenu {
+  border: solid 1px #ccc;
+  border-radius: 1em;
+  padding: 0;
+  margin-top: 1em;
+  background-color: white;
+  z-index: 1000;
+}
+
+ul.sortMenu li{
+  padding: 0.2em 3em 0.2em 1em;
+}
+
+ul.sortMenu li:hover{
+  background-color: #aaa;
+  color: white;
+  cursor: pointer;
+}
+
+ul.sortMenu li.selected:after{
+  display: inline-block;
+  position: absolute;
+  content:'';
+  background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIyMHB4IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyMCAyMCIgd2lkdGg9IjIwcHgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6c2tldGNoPSJodHRwOi8vd3d3LmJvaGVtaWFuY29kaW5nLmNvbS9za2V0Y2gvbnMiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48dGl0bGUvPjxkZXNjLz48ZGVmcy8+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBpZD0iUGFnZS0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSI+PGcgZmlsbD0iIzAwMDAwMCIgaWQ9IkNvcmUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xMjguMDAwMDAwLCAtODYuMDAwMDAwKSI+PGcgaWQ9ImNoZWNrLWNpcmNsZS1vdXRsaW5lIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjguMDAwMDAwLCA4Ni4wMDAwMDApIj48cGF0aCBkPSJNNS45LDguMSBMNC41LDkuNSBMOSwxNCBMMTksNCBMMTcuNiwyLjYgTDksMTEuMiBMNS45LDguMSBMNS45LDguMSBaIE0xOCwxMCBDMTgsMTQuNCAxNC40LDE4IDEwLDE4IEM1LjYsMTggMiwxNC40IDIsMTAgQzIsNS42IDUuNiwyIDEwLDIgQzEwLjgsMiAxMS41LDIuMSAxMi4yLDIuMyBMMTMuOCwwLjcgQzEyLjYsMC4zIDExLjMsMCAxMCwwIEM0LjUsMCAwLDQuNSAwLDEwIEMwLDE1LjUgNC41LDIwIDEwLDIwIEMxNS41LDIwIDIwLDE1LjUgMjAsMTAgTDE4LDEwIEwxOCwxMCBaIiBpZD0iU2hhcGUiLz48L2c+PC9nPjwvZz48L3N2Zz4=');
+  background-size: 100%;
+  width: 1em;
+  height: 1em;
+  margin: 0.3em 0 0 1em;
+}
+
+ul.sortTool button {
+  border: solid 1px #cccccc; 
+  border-radius: 50%;
+  padding: 0;
+  background: transparent;
+  width: 2em;
+  height: 2em;
+}
+
+ul.sortTool button img{
+  width: 50%;
+  height: 50%;
+}
+
+ul.sortMenu{
+  position: absolute;
+}
+
+.filterImageContainer{
+
+  width: 2em;
+  height: 2em;
+}
+
+.filter {
+  padding: 0;
+  display: flex;
+  flex-flow: row;
+}
+.filter div{
+  border: solid 1px #ccc;
+  border-radius: 50% 0 0 50%;
+}
+
+.filter img{
+  width: 50%;
+  height: auto;
+  margin-top: 25%;
+  margin-left: 25%;
+}
+
+
+ul.metadataToolbox .sort{
+
+}
+
+ul.metadataToolbox .filter{
+
+}
+
 ul.metadataList{
   list-style-type: none;
   display: flex;
@@ -65,7 +162,7 @@ article:hover{
   background-color: #efefef;
 }
 
-img{
+.imgContainer img{
   max-width: 100%;
   max-height: 100%;
   object-fit: scale-down;
