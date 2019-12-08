@@ -32,7 +32,7 @@ export class MetadataComponent implements OnInit {
   // filter
   metadataFilterValue='';
   // hide/display sort menu
-  displaySortMenu: false;
+  displaySortMenu: boolean= false;
 
 
   constructor(private route: ActivatedRoute, private beetApi: BeetApi, private cache: Cache, private dsh: DisplaySongsHelper, public utils: Utils) { }
@@ -110,6 +110,8 @@ export class MetadataComponent implements OnInit {
 
     return fm.pipe(toArray());
   }
+
+  switchSortMenu= () => this.displaySortMenu=!this.displaySortMenu;
 
 }
 
