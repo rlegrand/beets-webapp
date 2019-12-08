@@ -111,7 +111,5 @@ export class MetadataComponent implements OnInit {
     return fm.pipe(toArray());
   }
 
-  }
-
 }
 
