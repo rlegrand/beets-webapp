@@ -67,3 +67,6 @@ Then run the app:
 
 And go to [http://localhost](http://localhost)
 
+## Screenshots
+
+![alt text](https://rlegrand.github.io/beets-webapp/images/screenshot1.png)
