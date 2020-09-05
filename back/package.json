@@ -17,7 +17,7 @@
     "rxjs": "6.0.0",
     "redis": "2.8.0",
     "winston": "3.2.1",
-    "tree-kill": "1.2.0",
+    "tree-kill": "1.2.2",
     "express": "3.0.1",
     "body-parser": "1.18.3",
     "js-yaml": "3.12.0",
